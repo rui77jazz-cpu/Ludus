@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sala do Professor Rui - Portal Educativo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .admin-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .admin-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .admin-mode {
+            background: #28a745 !important;
+        }
+
+        nav {
+            background: #f8f9fa;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            border-bottom: 3px solid #667eea;
+        }
+
+        nav button {
+            background: none;
+            border: none;
+            padding: 20px 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            color: #333;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            font-weight: 600;
+        }
+
+        nav button:hover {
+            background: #e9ecef;
+            color: #667eea;
+        }
+
+        nav button.active {
+            background: white;
+            color: #667eea;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .tpc-item, .materia-item, .download-item, .video-item {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .tpc-item:hover, .materia-item:hover, .download-item:hover, .video-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tpc-item h3, .materia-item h3, .download-item h3, .video-item h3 {
+            color: #764ba2;
+            margin-bottom: 10px;
+        }
+
+        .date {
+            color: #666;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .download-btn, .video-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .download-btn:hover, .video-link:hover {
+            background: #764ba2;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Admin Controls */
+        .admin-controls {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .admin-controls.show {
+            display: block;
+        }
+
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            transition: background 0.3s;
+        }
+
+        .add-btn:hover {
+            background: #218838;
+        }
+
+        .item-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: none;
+        }
+
+        .admin-controls.show ~ div .item-controls {
+            display: block;
+        }
+
+        .edit-btn, .delete-btn {
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-left: 5px;
+            font-size: 0.9em;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #e0a800;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            border: 2px dashed #667eea;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .file-upload:hover {
+            background: #f8f9fa;
+        }
+
+        .file-upload input {
+            display: none;
+        }
+
+        .upload-progress {
+            margin-top: 10px;
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.3s;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-save, .btn-cancel {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+        }
+
+        .btn-save {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #218838;
+        }
+
+        .btn-save:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        /* Login Modal */
+        .login-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .login-modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .login-content h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background: #764ba2;
+        }
+
+        .error-message {
+            color: #dc3545;
+            margin-top: 10px;
+        }
+
+        /* Chat Styles */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .chat-header h3 {
+            margin-bottom: 5px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .message.assistant {
+            background: #e9ecef;
+            color: #333;
+        }
+
+        .message.system {
+            background: #fff3cd;
+            color: #856404;
+            text-align: center;
+            max-width: 100%;
+            border: 2px solid #ffc107;
+        }
+
+        .chat-input-container {
+            display: flex;
+            padding: 20px;
+            background: #f8f9fa;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .chat-send {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+
+        .chat-send:hover {
+            background: #764ba2;
+        }
+
+        .chat-send:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-style: italic;
+        }
+
+        .emoji {
+            font-size: 1.3em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state .emoji {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .admin-toggle {
+                position: static;
+                margin-top: 10px;
+                display: block;
+                width: 150px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            nav button {
+                padding: 15px 20px;
+                font-size: 1em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>A carregar...</p>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-content">
+            <h3>🔐 Modo Professor</h3>
+            <p>Introduz a password para aceder ao painel de administração:</p>
+            <input type="password" id="passwordInput" class="password-input" placeholder="Password">
+            <button onclick="checkPassword()" class="login-btn">Entrar</button>
+            <p id="errorMessage" class="error-message"></p>
+            <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+                <strong>Password padrão:</strong> professor123
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>🎓 Sala do Professor Rui</h1>
+            <p>Bem-vindos ao portal educativo da nossa turma!</p>
+            <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">
+                👨‍🏫 Modo Professor
+            </button>
+        </header>
+
+        <nav>
+            <button onclick="showSection('tpc')" class="nav-btn active">📚 Trabalhos de Casa</button>
+            <button onclick="showSection('materia')" class="nav-btn">📖 Matéria</button>
+            <button onclick="showSection('downloads')" class="nav-btn">📥 Downloads</button>
+            <button onclick="showSection('videos')" class="nav-btn">🎬 Vídeos</button>
+            <button onclick="showSection('chat')" class="nav-btn">💬 Professor Rui Virtual</button>
+        </nav>
+
+        <div class="content">
+            <!-- TPC Section -->
+            <div id="tpc" class="section active">
+                <h2>📚 Trabalhos de Casa</h2>
+                <div class="admin-controls" id="tpcAdmin">
+                    <button class="add-btn" onclick="openAddModal('tpc')">➕ Adicionar TPC</button>
+                </div>
+                <div id="tpcList"></div>
+            </div>
+
+            <!-- Matéria Section -->
+            <div id="materia" class="section">
+                <h2>📖 Matéria Atual</h2>
+                <div class="admin-controls" id="materiaAdmin">
+                    <button class="add-btn" onclick="openAddModal('materia')">➕ Adicionar Matéria</button>
+                </div>
+                <div id="materiaList"></div>
+            </div>
+
+            <!-- Downloads Section -->
+            <div id="downloads" class="section">
+                <h2>📥 Downloads</h2>
+                <div class="admin-controls" id="downloadsAdmin">
+                    <button class="add-btn" onclick="openAddModal('download')">➕ Adicionar Download</button>
+                </div>
+                <div id="downloadsList"></div>
+            </div>
+
+            <!-- Videos Section -->
+            <div id="videos" class="section">
+                <h2>🎬 Vídeos Educativos</h2>
+                <div class="admin-controls" id="videosAdmin">
+                    <button class="add-btn" onclick="openAddModal('video')">➕ Adicionar Vídeo</button>
+                </div>
+                <div id="videosList"></div>
+            </div>
+
+            <!-- Chat Section -->
+            <div id="chat" class="section">
+                <h2>💬 Professor Rui Virtual</h2>
+                <p style="margin-bottom: 20px; color: #666;">Podes fazer perguntas sobre a matéria, os trabalhos de casa ou qualquer dúvida que tenhas! <span class="emoji">😊</span></p>
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <h3>Professor Rui Virtual</h3>
+                        <p style="font-size: 0.9em;">Estou aqui para te ajudar com as tuas dúvidas!</p>
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message assistant">
+                            <strong>Professor Rui Virtual:</strong><br>
+                            Olá! <span class="emoji">👋</span> Sou o Professor Rui Virtual e estou aqui para te ajudar! Podes fazer-me perguntas sobre a matéria, os trabalhos de casa, ou qualquer dúvida que tenhas. Como te posso ajudar hoje?
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" id="chatInput" class="chat-input" placeholder="Escreve a tua pergunta aqui..." onkeypress="if(event.key==='Enter') sendMessage()">
+                        <button onclick="sendMessage()" class="chat-send" id="sendBtn">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Adicionar Item</h3>
+            <form id="editForm">
+                <div class="form-group">
+                    <label for="itemTitle">Título:</label>
+                    <input type="text" id="itemTitle" required>
+                </div>
+                <div class="form-group" id="dateGroup" style="display:none;">
+                    <label for="itemDate">Data:</label>
+                    <input type="text" id="itemDate" placeholder="Ex: Para dia 25 de novembro">
+                </div>
+                <div class="form-group">
+                    <label for="itemDescription">Descrição:</label>
+                    <textarea id="itemDescription" required></textarea>
+                </div>
+                <div class="form-group" id="urlGroup" style="display:none;">
+                    <label for="itemUrl">URL do Vídeo:</label>
+                    <input type="url" id="itemUrl" placeholder="https://...">
+                </div>
+                <div class="form-group" id="fileGroup" style="display:none;">
+                    <label>Ficheiro:</label>
+                    <div class="file-upload" onclick="document.getElementById('fileInput').click()">
+                        <p>📁 Clica para fazer upload do ficheiro</p>
+                        <p style="font-size: 0.9em; color: #666;">PDF, DOC, DOCX, etc.</p>
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
+                    </div>
+                    <p id="fileName" style="margin-top: 10px; color: #667eea;"></p>
+                    <div class="upload-progress" id="uploadProgress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p id="progressText" style="margin-top: 5px; text-align: center;"></p>
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn-save" id="saveBtn">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+
+    <script>
+        // ========================================
+        // INSTRUÇÕES DE CONFIGURAÇÃO DO FIREBASE
+        // ========================================
+        
+        /* 
+        PASSO 1: Criar projeto no Firebase
+        - Vai a https://console.firebase.google.com
+        - Clica em "Adicionar projeto"
+        - Dá um nome (ex: "escola-professor-rui")
+        - Desativa Google Analytics (não é necessário)
+        - Clica em "Criar projeto"
+
+        PASSO 2: Configurar Web App
+        - No projeto criado, clica no ícone </> (Web)
+        - Dá um nome à app (ex: "Site Escola")
+        - NÃO marques "Firebase Hosting"
+        - Clica em "Registar app"
+        - COPIA o código de configuração que aparece
+
+        PASSO 3: Ativar Realtime Database
+        - No menu lateral, vai a "Realtime Database"
+        - Clica em "Criar base de dados"
+        - Escolhe localização: "europe-west1"
+        - Modo: "Começar em modo de teste"
+        - Clica em "Ativar"
+
+        PASSO 4: Configurar Regras de Segurança (Database)
+        - Na aba "Regras", substitui tudo por:
+        
+        {
+          "rules": {
+            "tpc": {
+              ".read": true,
+              ".write": false
+            },
+            "materia": {
+              ".read": true,
+              ".write": false
+            },
+            "downloads": {
+              ".read": true,
+              ".write": false
+            },
+            "videos": {
+              ".read": true,
+              ".write": false
+            },
+            "admin": {
+              ".read": false,
+              ".write": false
+            }
+          }
+        }
+        
+        - Clica em "Publicar"
+
+        PASSO 5: Ativar Storage
+        - No menu lateral, vai a "Storage"
+        - Clica em "Começar"
+        - Aceita as regras predefinidas
+        - Clica em "Concluído"
+
+        PASSO 6: Configurar Regras de Segurança (Storage)
+        - Na aba "Regras", substitui tudo por:
+        
+        rules_version = '2';
+        service firebase.storage {
+          match /b/{bucket}/o {
+            match /{allPaths=**} {
+              allow read: if true;
+              allow write: if false;
+            }
+          }
+        }
+        
+        - Clica em "Publicar"
+
+        PASSO 7: Colar a configuração aqui
+        - Copia o objeto firebaseConfig do PASSO 2
+        - Cola abaixo substituindo o exemplo
+        */
+
+        // ⚠️ SUBSTITUI ESTA CONFIGURAÇÃO PELA TUA (do PASSO 2)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBg5GJhEOGbtp5mvmLj2pBSM_dAiSpO0j8",
+            authDomain: "ludus-virtualis.firebaseapp.com",
+            databaseURL: "https://ludus-virtualis-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ludus-virtualis",
+            storageBucket: "ludus-virtualis.firebasestorage.app",
+            messagingSenderId: "175619516992",
+            appId: "1:175619516992:web:11b91ef2f6daeedba68da5"
+        };
+
+        // Verifica se o Firebase está configurado
+        let firebaseInitialized = false;
+        let db = null;
+        let storage = null;
+
+        try {
+            if (firebaseConfig.apiKey !== "TUA_API_KEY_AQUI") {
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.database();
+                storage = firebase.storage();
+                firebaseInitialized = true;
+                console.log("✅ Firebase inicializado com sucesso!");
+            } else {
+                console.warn("⚠️ Firebase não configurado. Por favor, segue as instruções no código.");
+            }
+        } catch (error) {
+            console.error("❌ Erro ao inicializar Firebase:", error);
+        }
+
+        // ========================================
+        // VARIÁVEIS GLOBAIS
+        // ========================================
+        
+        const DEFAULT_PASSWORD = 'professor123';
+        let isAdminMode = false;
+        let currentEditType = '';
+        let currentEditIndex = -1;
+        let currentEditKey = null;
+        let uploadedFileURL = null;
+
+        // ========================================
+        // FUNÇÕES DE INTERFACE
+        // ========================================
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
+
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function toggleAdmin() {
+            if (!isAdminMode) {
+                document.getElementById('loginModal').classList.add('show');
+            } else {
+                isAdminMode = false;
+                document.getElementById('adminToggle').textContent = '👨‍🏫 Modo Professor';
+                document.getElementById('adminToggle').classList.remove('admin-mode');
+                document.querySelectorAll('.admin-controls').forEach(el => el.classList.remove('show'));
+            }
+        }
+
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            const errorMsg = document.getElementById('errorMessage');
+
+            if (input === DEFAULT_PASSWORD) {
+                isAdminMode = true;
+                document.getElementById('loginModal').classList.remove('show');
+                document.getElementById('adminToggle').textContent = '✅ Modo Edição Ativo';
+                document.getElementById('adminToggle').classList.add('admin-mode');
+                document.querySelectorAll('.admin-controls').forEach(el => el.classList.add('show'));
+                document.getElementById('passwordInput').value = '';
+                errorMsg.textContent = '';
+            } else {
+                errorMsg.textContent = '❌ Password incorreta!';
+            }
+        }
+
+        // ========================================
+        // FUNÇÕES DE RENDERIZAÇÃO
+        // ========================================
+
+        function renderList(type) {
+            const listElement = document.getElementById(`${type}List`);
+            listElement.innerHTML = '';
+
+            if (!firebaseInitialized) {
+                listElement.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">⚙️</div>
+                        <h3>Firebase não configurado</h3>
+                        <p>Por favor, segue as instruções no código para configurar o Firebase.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            showLoading();
+
+            db.ref(type).once('value').then((snapshot) => {
+                hideLoading();
+                const data = snapshot.val();
+
+                if (!data || Object.keys(data).length === 0) {
+                    listElement.innerHTML = `
+                        <div class="empty-state">
+                            <div class="emoji">📭</div>
+                            <p>Ainda não há itens aqui.</p>
+                            ${isAdminMode ? '<p>Clica em "Adicionar" para começar!</p>' : ''}
+                        </div>
+                    `;
+                    return;
+                }
+
+                Object.keys(data).forEach(key => {
+                    const item = data[key];
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = `${type}-item`;
+                    
+                    let html = `
+                        <div class="item-controls">
+                            <button class="edit-btn" onclick="editItem('${type}', '${key}')">✏️ Editar</button>
+                            <button class="delete-btn" onclick="deleteItem('${type}', '${key}')">🗑️ Apagar</button>
+                        </div>
+                        <h3>${item.title}</h3>
+                    `;
+
+                    if (item.date) {
+                        html += `<p class="date">📅 ${item.date}</p>`;
+                    }
+
+                    html += `<p>${item.description}</p>`;
+
+                    if (item.fileUrl) {
+                        html += `<a href="${item.fileUrl}" class="download-btn" download target="_blank">📄 Descarregar</a>`;
+                    } else if (item.url && type === 'videos') {
+                        html += `<a href="${item.url}" target="_blank" class="video-link">▶️ Ver Vídeo</a>`;
+                    }
+
+                    itemDiv.innerHTML = html;
+                    listElement.appendChild(itemDiv);
+                });
+            }).catch(error => {
+                hideLoading();
+                console.error("Erro ao carregar dados:", error);
+                listElement.innerHTML = `
+                    <div class="empty-state">
+                        <div class="emoji">❌</div>
+                        <p>Erro ao carregar dados.</p>
+                    </div>
+                `;
+            });
+        }
+
+        // ========================================
+        // FUNÇÕES DE EDIÇÃO
+        // ========================================
+
+        function openAddModal(type) {
+            currentEditType = type;
+            currentEditIndex = -1;
+            currentEditKey = null;
+            uploadedFileURL = null;
+
+            document.getElementById('modalTitle').textContent = 'Adicionar ' + getTitleByType(type);
+            document.getElementById('itemTitle').value = '';
+            document.getElementById('itemDate').value = '';
+            document.getElementById('itemDescription').value = '';
+            document.getElementById('itemUrl').value = '';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('fileName').textContent = '';
+            document.getElementById('uploadProgress').style.display = 'none';
+
+            // Show/hide fields based on type
+            document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
+            document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
+            document.getElementById('fileGroup').style.display = type === 'download' ? 'block' : 'none';
+
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function editItem(type, key) {
+            if (!firebaseInitialized) {
+                alert('Firebase não configurado!');
+                return;
+            }
+
+            currentEditType = type;
+            currentEditKey = key;
+            uploadedFileURL = null;
+
+            showLoading();
+
+            db.ref(`${type}/${key}`).once('value').then((snapshot) => {
+                hideLoading();
+                const item = snapshot.val();
+
+                document.getElementById('modalTitle').textContent = 'Editar ' + getTitleByType(type);
+                document.getElementById('itemTitle').value = item.title;
+                document.getElementById('itemDate').value = item.date || '';
+                document.getElementById('itemDescription').value = item.description;
+                document.getElementById('itemUrl').value = item.url || '';
+                document.getElementById('fileInput').value = '';
+                document.getElementById('fileName').textContent = item.fileUrl ? 'Ficheiro atual: ' + item.fileName : '';
+                document.getElementById('uploadProgress').style.display = 'none';
+
+                uploadedFileURL = item.fileUrl || null;
+
+                // Show/hide fields based on type
+                document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
+                document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
+                document.getElementById('fileGroup').style.display = type === 'download' ? 'block' : 'none';
+
+                document.getElementById('editModal').classList.add('show');
+            }).catch(error => {
+                hideLoading();
+                console.error("Erro ao carregar item:", error);
+                alert('Erro ao carregar item!');
+            });
+        }
+
+        function deleteItem(type, key) {
+            if (!firebaseInitialized) {
+                alert('Firebase não configurado!');
+                return;
+            }
+
+            if (confirm('Tens a certeza que queres apagar este item?')) {
+                showLoading();
+
+                // First get the item to check if it has a file
+                db.ref(`${type}/${key}`).once('value').then((snapshot) => {
+                    const item = snapshot.val();
+                    
+                    // Delete from database
+                    return db.ref(`${type}/${key}`).remove().then(() => {
+                        // If there's a file, delete it from storage
+                        if (item.fileUrl) {
+                            const fileRef = storage.refFromURL(item.fileUrl);
+                            return fileRef.delete().catch(err => {
+                                console.warn("Erro ao apagar ficheiro:", err);
+                            });
+                        }
+                    });
+                }).then(() => {
+                    hideLoading();
+                    renderList(type);
+                    alert('Item apagado com sucesso!');
+                }).catch(error => {
+                    hideLoading();
+                    console.error("Erro ao apagar item:", error);
+                    alert('Erro ao apagar item!');
+                });
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('editModal').classList.remove('show');
+            uploadedFileURL = null;
+        }
+
+        function getTitleByType(type) {
+            const titles = {
+                'tpc': 'Trabalho de Casa',
+                'materia': 'Matéria',
+                'download': 'Download',
+                'videos': 'Vídeo'
+            };
+            return titles[type];
+        }
+
+        // ========================================
+        // UPLOAD DE FICHEIROS
+        // ========================================
+
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('fileName').textContent = '📎 ' + file.name;
+                uploadFile(file);
+            }
+        });
+
+        function uploadFile(file) {
+            if (!firebaseInitialized) {
+                alert('Firebase não configurado!');
+                return;
+            }
+
+            const saveBtn = document.getElementById('saveBtn');
+            saveBtn.disabled = true;
+
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+
+            progressDiv.style.display = 'block';
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+
+            const timestamp = Date.now();
+            const fileName = `${timestamp}_${file.name}`;
+            const storageRef = storage.ref('downloads/' + fileName);
+            const uploadTask = storageRef.put(file);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressFill.style.width = progress + '%';
+                    progressText.textContent = Math.round(progress) + '%';
+                },
+                (error) => {
+                    console.error("Erro no upload:", error);
+                    alert('Erro ao fazer upload do ficheiro!');
+                    progressDiv.style.display = 'none';
+                    saveBtn.disabled = false;
+                },
+                () => {
+                    uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                        uploadedFileURL = downloadURL;
+                        progressText.textContent = '✅ Upload completo!';
+                        saveBtn.disabled = false;
+                        setTimeout(() => {
+                            progressDiv.style.display = 'none';
+                        }, 2000);
+                    });
+                }
+            );
+        }
+
+        // ========================================
+        // GUARDAR DADOS
+        // ========================================
+
+        document.getElementById('editForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!firebaseInitialized) {
+                alert('Firebase não configurado! Por favor, segue as instruções no código.');
+                return;
+            }
+
+            const newItem = {
+                title: document.getElementById('itemTitle').value,
+                description: document.getElementById('itemDescription').value,
+                timestamp: Date.now()
+            };
+
+            if (currentEditType === 'tpc') {
+                newItem.date = document.getElementById('itemDate').value;
+            }
+
+            if (currentEditType === 'videos') {
+                newItem.url = document.getElementById('itemUrl').value;
+            }
+
+            if (currentEditType === 'download') {
+                if (uploadedFileURL) {
+                    newItem.fileUrl = uploadedFileURL;
+                    newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'ficheiro';
+                } else if (currentEditKey) {
+                    // Keep existing file if editing and no new file uploaded
+                    db.ref(`${currentEditType}/${currentEditKey}`).once('value').then((snapshot) => {
+                        const existingItem = snapshot.val();
+                        if (existingItem.fileUrl) {
+                            newItem.fileUrl = existingItem.fileUrl;
+                            newItem.fileName = existingItem.fileName;
+                        }
+                        saveItem(newItem);
+                    });
+                    return;
+                } else {
+                    alert('Por favor, faz upload de um ficheiro!');
+                    return;
+                }
+            }
+
+            saveItem(newItem);
+        });
+
+        function saveItem(item) {
+            showLoading();
+
+            const ref = currentEditKey 
+                ? db.ref(`${currentEditType}/${currentEditKey}`)
+                : db.ref(currentEditType).push();
+
+            ref.set(item).then(() => {
+                hideLoading();
+                renderList(currentEditType);
+                closeModal();
+                alert(currentEditKey ? 'Item atualizado com sucesso!' : 'Item adicionado com sucesso!');
+            }).catch(error => {
+                hideLoading();
+                console.error("Erro ao guardar:", error);
+                alert('Erro ao guardar item!');
+            });
+        }
+
+        // ========================================
+        // CHAT COM IA
+        // ========================================
+
+        let conversationHistory = [];
+
+        function addMessage(text, type) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            if (type === 'user') {
+                messageDiv.innerHTML = `<strong>Tu:</strong><br>${text}`;
+            } else if (type === 'assistant') {
+                messageDiv.innerHTML = `<strong>Professor Rui Virtual:</strong><br>${text}`;
+            } else {
+                messageDiv.innerHTML = text;
+            }
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function isInappropriateContent(text) {
+            const lowerText = text.toLowerCase();
+            
+            const inappropriateKeywords = [
+                'sexo', 'sexual', 'nudez', 'pornografia', 'porno',
+                'violência', 'violento', 'matar', 'morte', 'sangue', 'arma', 'armas',
+                'droga', 'drogas', 'álcool', 'bebida alcoólica', 'cigarro', 'fumar',
+                'crime', 'roubar', 'roubo', 'assalto', 'terrorismo',
+                'ódio', 'racismo', 'discriminação', 'preconceito',
+                'suicídio', 'suicidar', 'automutilação'
+            ];
+
+            for (const keyword of inappropriateKeywords) {
+                if (lowerText.includes(keyword)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('sendBtn');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            if (isInappropriateContent(message)) {
+                addMessage('⚠️ Desculpa, mas não posso responder a essa pergunta. Vamos falar sobre coisas da escola? Podes perguntar-me sobre a matéria, os trabalhos de casa ou qualquer dúvida escolar que tenhas! 😊', 'system');
+                input.value = '';
+                return;
+            }
+
+            addMessage(message, 'user');
+            input.value = '';
+
+            sendBtn.disabled = true;
+            input.disabled = true;
+
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'loading';
+            loadingDiv.innerHTML = 'Professor Rui Virtual está a pensar... 💭';
+            loadingDiv.id = 'chatLoading';
+            document.getElementById('chatMessages').appendChild(loadingDiv);
+
+            try {
+                const systemMessage = {
+                    role: "user",
+                    content: `Tens de responder como o "Professor Rui Virtual", um assistente educativo para crianças do 1º ao 4º ano em Portugal. 
+
+REGRAS IMPORTANTES:
+1. És um professor amigável, encorajador e paciente
+2. Usa linguagem simples e apropriada para crianças dos 6 aos 10 anos
+3. Responde APENAS a perguntas educativas e escolares
+4. NUNCA fales sobre: violência, sexo, drogas, crime, ou qualquer conteúdo inapropriado
+5. Se perguntarem algo inapropriado, redireciona gentilmente para temas escolares
+6. Dá respostas curtas, claras e encorajadoras
+7. Usa emojis ocasionalmente para ser mais amigável
+8. Foca em: português, matemática, estudo do meio, leitura, escrita
+9. Incentiva sempre o esforço e a aprendizagem
+
+A pergunta do aluno é: "${message}"
+
+Responde de forma apropriada para uma criança do ensino básico.`
+                };
+
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-20250514",
+                        max_tokens: 500,
+                        messages: [systemMessage]
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro na resposta da API');
+                }
+
+                const data = await response.json();
+                const assistantMessage = data.content[0].text;
+
+                document.getElementById('chatLoading')?.remove();
+                addMessage(assistantMessage, 'assistant');
+
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('chatLoading')?.remove();
+                addMessage('Desculpa, tive um problema a responder. Podes tentar outra vez? 😅', 'system');
+            } finally {
+                sendBtn.disabled = false;
+                input.disabled = false;
+                input.focus();
+            }
+        }
+
+        // ========================================
+        // INICIALIZAÇÃO
+        // ========================================
+
+        window.addEventListener('DOMContentLoaded', function() {
+            if (firebaseInitialized) {
+                renderList('tpc');
+                renderList('materia');
+                renderList('download');
+                renderList('videos');
+
+                // Listen for real-time updates
+                db.ref('tpc').on('value', () => renderList('tpc'));
+                db.ref('materia').on('value', () => renderList('materia'));
+                db.ref('download').on('value', () => renderList('download'));
+                db.ref('videos').on('value', () => renderList('videos'));
+            } else {
+                hideLoading();
+                ['tpc', 'materia', 'download', 'videos'].forEach(type => {
+                    const listElement = document.getElementById(`${type}List`);
+                    listElement.innerHTML = `
+                        <div class="empty-state">
+                            <div class="emoji">⚙️</div>
+                            <h3>Firebase não configurado</h3>
+                            <p>Por favor, abre o ficheiro HTML num editor de texto e segue as instruções detalhadas no início do código JavaScript.</p>
+                            <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
+                                Precisas de criar uma conta gratuita no Firebase e colar a tua configuração no código.
+                            </p>
+                        </div>
+                    `;
+                });
+            }
+        });
+
+        // Allow Enter key on password input
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+    </script>
+</body>
+</html>
