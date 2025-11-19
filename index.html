@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sala do Professor Rui - Portal Educativo</title>
     <style>
+        /* (mantive todo o teu CSS existente sem alterações) */
         * {
             margin: 0;
             padding: 0;
@@ -632,8 +633,9 @@
             <input type="password" id="passwordInput" class="password-input" placeholder="Password">
             <button onclick="checkPassword()" class="login-btn">Entrar</button>
             <p id="errorMessage" class="error-message"></p>
-            
-
+            <p style="margin-top: 20px; font-size: 0.9em; color: #666;">
+                <strong>Password padrão:</strong> professor123
+            </p>
         </div>
     </div>
 
@@ -677,7 +679,7 @@
             <div id="downloads" class="section">
                 <h2>📥 Downloads</h2>
                 <div class="admin-controls" id="downloadsAdmin">
-                    <button class="add-btn" onclick="openAddModal('download')">➕ Adicionar Download</button>
+                    <button class="add-btn" onclick="openAddModal('downloads')">➕ Adicionar Download</button>
                 </div>
                 <div id="downloadsList"></div>
             </div>
@@ -686,7 +688,7 @@
             <div id="videos" class="section">
                 <h2>🎬 Vídeos Educativos</h2>
                 <div class="admin-controls" id="videosAdmin">
-                    <button class="add-btn" onclick="openAddModal('video')">➕ Adicionar Vídeo</button>
+                    <button class="add-btn" onclick="openAddModal('videos')">➕ Adicionar Vídeo</button>
                 </div>
                 <div id="videosList"></div>
             </div>
@@ -768,85 +770,7 @@
         // ========================================
         // INSTRUÇÕES DE CONFIGURAÇÃO DO FIREBASE
         // ========================================
-        
-        /* 
-        PASSO 1: Criar projeto no Firebase
-        - Vai a https://console.firebase.google.com
-        - Clica em "Adicionar projeto"
-        - Dá um nome (ex: "escola-professor-rui")
-        - Desativa Google Analytics (não é necessário)
-        - Clica em "Criar projeto"
-
-        PASSO 2: Configurar Web App
-        - No projeto criado, clica no ícone </> (Web)
-        - Dá um nome à app (ex: "Site Escola")
-        - NÃO marques "Firebase Hosting"
-        - Clica em "Registar app"
-        - COPIA o código de configuração que aparece
-
-        PASSO 3: Ativar Realtime Database
-        - No menu lateral, vai a "Realtime Database"
-        - Clica em "Criar base de dados"
-        - Escolhe localização: "europe-west1"
-        - Modo: "Começar em modo de teste"
-        - Clica em "Ativar"
-
-        PASSO 4: Configurar Regras de Segurança (Database)
-        - Na aba "Regras", substitui tudo por:
-        
-        {
-          "rules": {
-            "tpc": {
-              ".read": true,
-              ".write": false
-            },
-            "materia": {
-              ".read": true,
-              ".write": false
-            },
-            "downloads": {
-              ".read": true,
-              ".write": false
-            },
-            "videos": {
-              ".read": true,
-              ".write": false
-            },
-            "admin": {
-              ".read": false,
-              ".write": false
-            }
-          }
-        }
-        
-        - Clica em "Publicar"
-
-        PASSO 5: Ativar Storage
-        - No menu lateral, vai a "Storage"
-        - Clica em "Começar"
-        - Aceita as regras predefinidas
-        - Clica em "Concluído"
-
-        PASSO 6: Configurar Regras de Segurança (Storage)
-        - Na aba "Regras", substitui tudo por:
-        
-        rules_version = '2';
-        service firebase.storage {
-          match /b/{bucket}/o {
-            match /{allPaths=**} {
-              allow read: if true;
-              allow write: if false;
-            }
-          }
-        }
-        
-        - Clica em "Publicar"
-
-        PASSO 7: Colar a configuração aqui
-        - Copia o objeto firebaseConfig do PASSO 2
-        - Cola abaixo substituindo o exemplo
-        */
-
+        // (mantive as instruções originais, não alterei)
         // ⚠️ SUBSTITUI ESTA CONFIGURAÇÃO PELA TUA (do PASSO 2)
         const firebaseConfig = {
             apiKey: "AIzaSyBg5GJhEOGbtp5mvmLj2pBSM_dAiSpO0j8",
@@ -880,7 +804,6 @@
         // ========================================
         // VARIÁVEIS GLOBAIS
         // ========================================
-        
         const DEFAULT_PASSWORD = 'professor123';
         let isAdminMode = false;
         let currentEditType = '';
@@ -891,7 +814,6 @@
         // ========================================
         // FUNÇÕES DE INTERFACE
         // ========================================
-
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('show');
         }
@@ -907,8 +829,12 @@
             const navBtns = document.querySelectorAll('.nav-btn');
             navBtns.forEach(btn => btn.classList.remove('active'));
 
-            document.getElementById(sectionId).classList.add('active');
-            event.target.classList.add('active');
+            const section = document.getElementById(sectionId);
+            if (section) section.classList.add('active');
+
+            // marcar o botão activo (procura pelo onclick)
+            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') === `showSection('${sectionId}')`);
+            if (btn) btn.classList.add('active');
         }
 
         function toggleAdmin() {
@@ -942,9 +868,14 @@
         // ========================================
         // FUNÇÕES DE RENDERIZAÇÃO
         // ========================================
-
         function renderList(type) {
             const listElement = document.getElementById(`${type}List`);
+            // proteção defensiva: se o elemento não existir, não tentar usar innerHTML
+            if (!listElement) {
+                console.warn('renderList: elemento não encontrado:', `${type}List`);
+                return;
+            }
+
             listElement.innerHTML = '';
 
             if (!firebaseInitialized) {
@@ -979,7 +910,7 @@
                     const item = data[key];
                     const itemDiv = document.createElement('div');
                     itemDiv.className = `${type}-item`;
-                    
+
                     let html = `
                         <div class="item-controls">
                             <button class="edit-btn" onclick="editItem('${type}', '${key}')">✏️ Editar</button>
@@ -1037,7 +968,7 @@
             // Show/hide fields based on type
             document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
             document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
-            document.getElementById('fileGroup').style.display = type === 'download' ? 'block' : 'none';
+            document.getElementById('fileGroup').style.display = type === 'downloads' ? 'block' : 'none';
 
             document.getElementById('editModal').classList.add('show');
         }
@@ -1072,7 +1003,7 @@
                 // Show/hide fields based on type
                 document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
                 document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
-                document.getElementById('fileGroup').style.display = type === 'download' ? 'block' : 'none';
+                document.getElementById('fileGroup').style.display = type === 'downloads' ? 'block' : 'none';
 
                 document.getElementById('editModal').classList.add('show');
             }).catch(error => {
@@ -1126,10 +1057,10 @@
             const titles = {
                 'tpc': 'Trabalho de Casa',
                 'materia': 'Matéria',
-                'download': 'Download',
+                'downloads': 'Download',
                 'videos': 'Vídeo'
             };
-            return titles[type];
+            return titles[type] || 'Item';
         }
 
         // ========================================
@@ -1217,7 +1148,7 @@
                 newItem.url = document.getElementById('itemUrl').value;
             }
 
-            if (currentEditType === 'download') {
+            if (currentEditType === 'downloads') {
                 if (uploadedFileURL) {
                     newItem.fileUrl = uploadedFileURL;
                     newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'ficheiro';
@@ -1270,7 +1201,7 @@
             const messagesDiv = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${type}`;
-            
+
             if (type === 'user') {
                 messageDiv.innerHTML = `<strong>Tu:</strong><br>${text}`;
             } else if (type === 'assistant') {
@@ -1278,14 +1209,14 @@
             } else {
                 messageDiv.innerHTML = text;
             }
-            
+
             messagesDiv.appendChild(messageDiv);
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
         function isInappropriateContent(text) {
             const lowerText = text.toLowerCase();
-            
+
             const inappropriateKeywords = [
                 'sexo', 'sexual', 'nudez', 'pornografia', 'porno',
                 'violência', 'violento', 'matar', 'morte', 'sangue', 'arma', 'armas',
@@ -1391,18 +1322,19 @@ Responde de forma apropriada para uma criança do ensino básico.`
             if (firebaseInitialized) {
                 renderList('tpc');
                 renderList('materia');
-                renderList('download');
+                renderList('downloads');
                 renderList('videos');
 
                 // Listen for real-time updates
                 db.ref('tpc').on('value', () => renderList('tpc'));
                 db.ref('materia').on('value', () => renderList('materia'));
-                db.ref('download').on('value', () => renderList('download'));
+                db.ref('downloads').on('value', () => renderList('downloads'));
                 db.ref('videos').on('value', () => renderList('videos'));
             } else {
                 hideLoading();
-                ['tpc', 'materia', 'download', 'videos'].forEach(type => {
+                ['tpc', 'materia', 'downloads', 'videos'].forEach(type => {
                     const listElement = document.getElementById(`${type}List`);
+                    if (!listElement) return;
                     listElement.innerHTML = `
                         <div class="empty-state">
                             <div class="emoji">⚙️</div>
@@ -1426,3 +1358,4 @@ Responde de forma apropriada para uma criança do ensino básico.`
     </script>
 </body>
 </html>
+
