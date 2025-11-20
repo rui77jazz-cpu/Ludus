@@ -696,73 +696,28 @@
             <!-- Chat Section -->
             <div id="chat" class="section">
                 <h2>💬 Professor Rui Virtual</h2>
-               <h2>💬 Professor Rui Virtual</h2>
 
-<p style="margin-bottom: 20px; color: #666;">
-   Podes fazer perguntas sobre a matéria, os trabalhos de casa ou qualquer dúvida!
-</p>
+                <p style="margin-bottom: 20px; color: #666;">
+                   Podes fazer perguntas sobre a matéria, os trabalhos de casa ou qualquer dúvida!
+                </p>
 
-<div id="chat-box" style="background:white; padding:20px; border-radius:10px; width:90%; max-width:700px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1);">
-    
-    <div id="messages" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px; background:#fafafa; border-radius:5px;">
+                <div id="chat-box" style="background:white; padding:20px; border-radius:10px; width:90%; max-width:700px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1);">
+                    
+                    <div id="messages" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px; background:#fafafa; border-radius:5px;">
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        <input id="userInput" type="text" placeholder="Escreve a tua pergunta..." 
+                               style="width:70%; padding:10px; border-radius:5px;">
+                        <button onclick="enviar()" style="padding:10px 15px;">Enviar</button>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
     </div>
-
-    <div style="margin-top:10px;">
-        <input id="userInput" type="text" placeholder="Escreve a tua pergunta..." 
-               style="width:70%; padding:10px; border-radius:5px;">
-        <button onclick="enviar()" style="padding:10px 15px;">Enviar</button>
-    </div>
-
-</div>
-
-<script>
-    const API_KEY = "AIzaSyAtilJpc0AnHIrgjUyPxwwEWLKOUploSes";   // <-- mete a tua key aqui
-
-    function addMsg(text, type) {
-        const box = document.getElementById("messages");
-        const div = document.createElement("div");
-        div.style.margin = "8px";
-        div.style.padding = "10px";
-        div.style.borderRadius = "8px";
-        div.style.background = type === "user" ? "#d2ecff" : "#e2e0ff";
-        div.textContent = text;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
-    }
-
-    async function enviar() {
-        const pergunta = document.getElementById("userInput").value.trim();
-        if (!pergunta) return;
-
-        addMsg(pergunta, "user");
-        document.getElementById("userInput").value = "";
-
-        addMsg("A pensar…", "bot");
-
-        try {
-            const resposta = await fetch(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY,
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: pergunta }] }]
-                    })
-                }
-            );
-
-            const data = await resposta.json();
-            const texto = data.candidates?.[0]?.content?.parts?.[0]?.text || 
-                          "Ups, não consegui responder.";
-
-            document.querySelector("#messages div:last-child").textContent = texto;
-
-        } catch (e) {
-            document.querySelector("#messages div:last-child").textContent = "Erro a ligar ao Gemini.";
-        }
-    }
-</script>
-
 
     <!-- Edit Modal -->
     <div id="editModal" class="modal">
@@ -808,17 +763,15 @@
         </div>
     </div>
 
-    <!-- Firebase -->
+    <!-- Firebase compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <script>
         // ========================================
-        // INSTRUÇÕES DE CONFIGURAÇÃO DO FIREBASE
+        // FIREBASE CONFIG (já correta)
         // ========================================
-        // (mantive as instruções originais, não alterei)
-        // ⚠️ SUBSTITUI ESTA CONFIGURAÇÃO PELA TUA (do PASSO 2)
         const firebaseConfig = {
             apiKey: "AIzaSyBg5GJhEOGbtp5mvmLj2pBSM_dAiSpO0j8",
             authDomain: "ludus-virtualis.firebaseapp.com",
@@ -829,21 +782,17 @@
             appId: "1:175619516992:web:11b91ef2f6daeedba68da5"
         };
 
-        // Verifica se o Firebase está configurado
+        // Inicializa Firebase (compat)
         let firebaseInitialized = false;
         let db = null;
         let storage = null;
 
         try {
-            if (firebaseConfig.apiKey !== "TUA_API_KEY_AQUI") {
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.database();
-                storage = firebase.storage();
-                firebaseInitialized = true;
-                console.log("✅ Firebase inicializado com sucesso!");
-            } else {
-                console.warn("⚠️ Firebase não configurado. Por favor, segue as instruções no código.");
-            }
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            storage = firebase.storage();
+            firebaseInitialized = true;
+            console.log("✅ Firebase inicializado com sucesso!");
         } catch (error) {
             console.error("❌ Erro ao inicializar Firebase:", error);
         }
@@ -859,7 +808,7 @@
         let uploadedFileURL = null;
 
         // ========================================
-        // FUNÇÕES DE INTERFACE
+        // FUNÇÕES DE INTERFACE (idem ao teu código)
         // ========================================
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('show');
@@ -879,7 +828,6 @@
             const section = document.getElementById(sectionId);
             if (section) section.classList.add('active');
 
-            // marcar o botão activo (procura pelo onclick)
             const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') === `showSection('${sectionId}')`);
             if (btn) btn.classList.add('active');
         }
@@ -913,11 +861,10 @@
         }
 
         // ========================================
-        // FUNÇÕES DE RENDERIZAÇÃO
+        // RENDERIZAÇÃO E EDIÇÃO (mantive o teu código)
         // ========================================
         function renderList(type) {
             const listElement = document.getElementById(`${type}List`);
-            // proteção defensiva: se o elemento não existir, não tentar usar innerHTML
             if (!listElement) {
                 console.warn('renderList: elemento não encontrado:', `${type}List`);
                 return;
@@ -930,7 +877,7 @@
                     <div class="empty-state">
                         <div class="emoji">⚙️</div>
                         <h3>Firebase não configurado</h3>
-                        <p>Por favor, segue as instruções no código para configurar o Firebase.</p>
+                        <p>Por favor, verifica a configuração do Firebase.</p>
                     </div>
                 `;
                 return;
@@ -993,10 +940,6 @@
             });
         }
 
-        // ========================================
-        // FUNÇÕES DE EDIÇÃO
-        // ========================================
-
         function openAddModal(type) {
             currentEditType = type;
             currentEditIndex = -1;
@@ -1012,7 +955,6 @@
             document.getElementById('fileName').textContent = '';
             document.getElementById('uploadProgress').style.display = 'none';
 
-            // Show/hide fields based on type
             document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
             document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
             document.getElementById('fileGroup').style.display = type === 'downloads' ? 'block' : 'none';
@@ -1047,7 +989,6 @@
 
                 uploadedFileURL = item.fileUrl || null;
 
-                // Show/hide fields based on type
                 document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
                 document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
                 document.getElementById('fileGroup').style.display = type === 'downloads' ? 'block' : 'none';
@@ -1069,13 +1010,10 @@
             if (confirm('Tens a certeza que queres apagar este item?')) {
                 showLoading();
 
-                // First get the item to check if it has a file
                 db.ref(`${type}/${key}`).once('value').then((snapshot) => {
                     const item = snapshot.val();
-                    
-                    // Delete from database
+
                     return db.ref(`${type}/${key}`).remove().then(() => {
-                        // If there's a file, delete it from storage
                         if (item.fileUrl) {
                             const fileRef = storage.refFromURL(item.fileUrl);
                             return fileRef.delete().catch(err => {
@@ -1110,10 +1048,7 @@
             return titles[type] || 'Item';
         }
 
-        // ========================================
-        // UPLOAD DE FICHEIROS
-        // ========================================
-
+        // Upload file listener
         document.getElementById('fileInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {
@@ -1169,10 +1104,6 @@
             );
         }
 
-        // ========================================
-        // GUARDAR DADOS
-        // ========================================
-
         document.getElementById('editForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -1200,7 +1131,6 @@
                     newItem.fileUrl = uploadedFileURL;
                     newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'ficheiro';
                 } else if (currentEditKey) {
-                    // Keep existing file if editing and no new file uploaded
                     db.ref(`${currentEditType}/${currentEditKey}`).once('value').then((snapshot) => {
                         const existingItem = snapshot.val();
                         if (existingItem.fileUrl) {
@@ -1239,132 +1169,59 @@
         }
 
         // ========================================
-        // CHAT COM IA
+        // Chat com Gemini (mantive a versão que combina com a UI)
         // ========================================
+        const API_KEY = "AIzaSyAtilJpc0AnHIrgjUyPxwwEWLKOUploSes";   // já tinhas esta chave no ficheiro
 
-        let conversationHistory = [];
-
-        function addMessage(text, type) {
-            const messagesDiv = document.getElementById('chatMessages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${type}`;
-
-            if (type === 'user') {
-                messageDiv.innerHTML = `<strong>Tu:</strong><br>${text}`;
-            } else if (type === 'assistant') {
-                messageDiv.innerHTML = `<strong>Professor Rui Virtual:</strong><br>${text}`;
-            } else {
-                messageDiv.innerHTML = text;
-            }
-
-            messagesDiv.appendChild(messageDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        function addMsg(text, type) {
+            const box = document.getElementById("messages");
+            const div = document.createElement("div");
+            div.style.margin = "8px";
+            div.style.padding = "10px";
+            div.style.borderRadius = "8px";
+            div.style.background = type === "user" ? "#d2ecff" : "#e2e0ff";
+            div.textContent = text;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
         }
 
-        function isInappropriateContent(text) {
-            const lowerText = text.toLowerCase();
+        async function enviar() {
+            const pergunta = document.getElementById("userInput").value.trim();
+            if (!pergunta) return;
 
-            const inappropriateKeywords = [
-                'sexo', 'sexual', 'nudez', 'pornografia', 'porno',
-                'violência', 'violento', 'matar', 'morte', 'sangue', 'arma', 'armas',
-                'droga', 'drogas', 'álcool', 'bebida alcoólica', 'cigarro', 'fumar',
-                'crime', 'roubar', 'roubo', 'assalto', 'terrorismo',
-                'ódio', 'racismo', 'discriminação', 'preconceito',
-                'suicídio', 'suicidar', 'automutilação'
-            ];
+            addMsg(pergunta, "user");
+            document.getElementById("userInput").value = "";
 
-            for (const keyword of inappropriateKeywords) {
-                if (lowerText.includes(keyword)) {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        async function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const sendBtn = document.getElementById('sendBtn');
-            const message = input.value.trim();
-
-            if (!message) return;
-
-            if (isInappropriateContent(message)) {
-                addMessage('⚠️ Desculpa, mas não posso responder a essa pergunta. Vamos falar sobre coisas da escola? Podes perguntar-me sobre a matéria, os trabalhos de casa ou qualquer dúvida escolar que tenhas! 😊', 'system');
-                input.value = '';
-                return;
-            }
-
-            addMessage(message, 'user');
-            input.value = '';
-
-            sendBtn.disabled = true;
-            input.disabled = true;
-
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading';
-            loadingDiv.innerHTML = 'Professor Rui Virtual está a pensar... 💭';
-            loadingDiv.id = 'chatLoading';
-            document.getElementById('chatMessages').appendChild(loadingDiv);
+            addMsg("A pensar…", "bot");
 
             try {
-                const systemMessage = {
-                    role: "user",
-                    content: `Tens de responder como o "Professor Rui Virtual", um assistente educativo para crianças do 1º ao 4º ano em Portugal. 
+                const resposta = await fetch(
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY,
+                    {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: pergunta }] }]
+                        })
+                    }
+                );
 
-REGRAS IMPORTANTES:
-1. És um professor amigável, encorajador e paciente
-2. Usa linguagem simples e apropriada para crianças dos 6 aos 10 anos
-3. Responde APENAS a perguntas educativas e escolares
-4. NUNCA fales sobre: violência, sexo, drogas, crime, ou qualquer conteúdo inapropriado
-5. Se perguntarem algo inapropriado, redireciona gentilmente para temas escolares
-6. Dá respostas curtas, claras e encorajadoras
-7. Usa emojis ocasionalmente para ser mais amigável
-8. Foca em: português, matemática, estudo do meio, leitura, escrita
-9. Incentiva sempre o esforço e a aprendizagem
+                const data = await resposta.json();
+                const texto = data.candidates?.[0]?.content?.parts?.[0]?.text ||
+                              "Ups, não consegui responder.";
 
-A pergunta do aluno é: "${message}"
+                const last = document.querySelector("#messages div:last-child");
+                if (last) last.textContent = texto;
 
-Responde de forma apropriada para uma criança do ensino básico.`
-                };
-
-                const response = await fetch("https://api.anthropic.com/v1/messages", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        model: "claude-sonnet-4-20250514",
-                        max_tokens: 500,
-                        messages: [systemMessage]
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error('Erro na resposta da API');
-                }
-
-                const data = await response.json();
-                const assistantMessage = data.content[0].text;
-
-                document.getElementById('chatLoading')?.remove();
-                addMessage(assistantMessage, 'assistant');
-
-            } catch (error) {
-                console.error('Erro:', error);
-                document.getElementById('chatLoading')?.remove();
-                addMessage('Desculpa, tive um problema a responder. Podes tentar outra vez? 😅', 'system');
-            } finally {
-                sendBtn.disabled = false;
-                input.disabled = false;
-                input.focus();
+            } catch (e) {
+                const last = document.querySelector("#messages div:last-child");
+                if (last) last.textContent = "Erro a ligar ao Gemini.";
             }
         }
 
         // ========================================
-        // INICIALIZAÇÃO
+        // Inicialização
         // ========================================
-
         window.addEventListener('DOMContentLoaded', function() {
             if (firebaseInitialized) {
                 renderList('tpc');
@@ -1379,20 +1236,7 @@ Responde de forma apropriada para uma criança do ensino básico.`
                 db.ref('videos').on('value', () => renderList('videos'));
             } else {
                 hideLoading();
-                ['tpc', 'materia', 'downloads', 'videos'].forEach(type => {
-                    const listElement = document.getElementById(`${type}List`);
-                    if (!listElement) return;
-                    listElement.innerHTML = `
-                        <div class="empty-state">
-                            <div class="emoji">⚙️</div>
-                            <h3>Firebase não configurado</h3>
-                            <p>Por favor, abre o ficheiro HTML num editor de texto e segue as instruções detalhadas no início do código JavaScript.</p>
-                            <p style="margin-top: 15px; font-size: 0.9em; color: #666;">
-                                Precisas de criar uma conta gratuita no Firebase e colar a tua configuração no código.
-                            </p>
-                        </div>
-                    `;
-                });
+                // não faz iterações perigosas aqui quando firebase não está inicializado
             }
         });
 
@@ -1405,4 +1249,5 @@ Responde de forma apropriada para uma criança do ensino básico.`
     </script>
 </body>
 </html>
+
 
