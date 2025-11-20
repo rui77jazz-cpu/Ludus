@@ -901,29 +901,28 @@
 
                 <!-- API Key Configuration -->
                 <div class="api-key-section" id="apiKeySection">
-                    <h4>⚙️ Configuração da API Claude</h4>
+                    <h4>⚙️ Configuração da API Gemini</h4>
                     <p style="margin-bottom: 15px; font-size: 0.95em;">
-                        Para o chat funcionar com Claude (o melhor assistente educativo), precisas de uma chave API:
+                        Para o chat funcionar, precisas de uma chave API <strong>gratuita</strong> do Google Gemini:
                     </p>
                     <ol>
-                        <li>Vai a <a href="https://console.anthropic.com/settings/keys" target="_blank">Anthropic Console</a></li>
-                        <li>Cria uma conta (se não tiveres)</li>
-                        <li>Cria uma chave API</li>
-                        <li>Cola a chave abaixo:</li>
+                        <li>Vai a <a href="https://makersuite.google.com/app/apikey" target="_blank">Google AI Studio</a></li>
+                        <li>Faz login com a tua conta Google</li>
+                        <li>Clica em <strong>"Create API Key"</strong></li>
+                        <li>Copia a chave e cola abaixo:</li>
                     </ol>
                     <p style="font-size: 0.85em; color: #856404; margin-bottom: 12px;">
-                        💡 <strong>Nota:</strong> A API do Claude tem um custo muito baixo (~$0.003 por mensagem). 
-                        Recebes $5 de crédito grátis ao criar conta!
+                        💡 <strong>Nota:</strong> A API do Gemini é 100% gratuita e não tem limites!
                     </p>
-                    <input type="password" id="apiKeyInput" class="api-key-input" placeholder="sk-ant-...">
+                    <input type="text" id="apiKeyInput" class="api-key-input" placeholder="Cole aqui a tua chave API do Gemini">
                     <button onclick="saveApiKey()" class="api-key-btn">💾 Guardar Chave API</button>
                 </div>
 
                 <div class="chat-container">
                     <div class="chat-header">
-                        <h3>🤖 Professor Rui Virtual (Claude)</h3>
+                        <h3>🤖 Professor Rui Virtual</h3>
                         <p>Assistente educativo inteligente para te ajudar em tudo!</p>
-                        <span class="badge">Powered by Claude Sonnet 4</span>
+                        <span class="badge">Powered by Google Gemini</span>
                     </div>
 
                     <div class="chat-messages" id="chatMessages">
@@ -1046,58 +1045,53 @@
         }
 
         // ========================================
-        // CHAT COM CLAUDE - IMPLEMENTAÇÃO COMPLETA
+        // CHAT COM GEMINI - IMPLEMENTAÇÃO COMPLETA
         // ========================================
         let chatHistory = [];
-        let claudeApiKey = localStorage.getItem('claudeApiKey') || '';
+        let geminiApiKey = localStorage.getItem('geminiApiKey') || '';
         let isProcessing = false;
         let messageCounter = 0;
 
-        // System prompt educativo
-        const SYSTEM_PROMPT = `És o Professor Rui Virtual, um assistente educativo português especializado em ajudar alunos do 1º ao 4º ano (6-10 anos).
+        // System prompt educativo embutido nas mensagens
+        const SYSTEM_CONTEXT = `Sou o Professor Rui Virtual, assistente educativo português para alunos do 1º ao 4º ano (6-10 anos).
 
-PERSONALIDADE:
+Características:
 - Amigável, paciente e encorajador
-- Usa linguagem simples e clara apropriada para crianças
+- Linguagem simples e clara para crianças
 - Muito positivo e motivador
-- Explica conceitos de forma lúdica e com exemplos práticos
-
-ESTILO DE COMUNICAÇÃO:
+- Explicações lúdicas com exemplos práticos
 - Frases curtas e diretas
-- Usa emojis ocasionalmente para tornar a conversa mais divertida 😊
-- Evita termos técnicos complexos
-- Dá exemplos do dia-a-dia das crianças
-- Celebra o esforço e progresso dos alunos
+- Uso ocasional de emojis 😊
+- Evito termos técnicos complexos
+- Dou exemplos do dia-a-dia das crianças
 
-ÁREAS DE AJUDA:
+Ajudo com:
 - Matemática (contas, problemas, tabuadas)
 - Português (leitura, escrita, gramática)
 - Estudo do Meio (ciências, história, geografia)
 - Trabalhos de casa e exercícios
-- Dicas de estudo e organização
 
-IMPORTANTE:
-- Nunca dês respostas diretas a exercícios - guia o aluno a pensar
-- Incentiva sempre o raciocínio próprio
-- Adapta a explicação se a criança não entender
-- Sê sempre educado e respeitoso
-- Se não souberes algo, admite honestamente`;
+Regras importantes:
+- Nunca dou respostas diretas a exercícios - guio o aluno a pensar
+- Incentivo sempre o raciocínio próprio
+- Adapto a explicação se não entenderem
+- Sou sempre educado e respeitoso`;
 
         // Check if API key exists on load
-        if (claudeApiKey) {
+        if (geminiApiKey) {
             document.getElementById('apiKeySection').style.display = 'none';
-            document.getElementById('apiKeyInput').value = claudeApiKey;
+            document.getElementById('apiKeyInput').value = geminiApiKey;
         }
 
         function saveApiKey() {
             const key = document.getElementById('apiKeyInput').value.trim();
-            if (key && key.startsWith('sk-ant-')) {
-                claudeApiKey = key;
-                localStorage.setItem('claudeApiKey', key);
+            if (key) {
+                geminiApiKey = key;
+                localStorage.setItem('geminiApiKey', key);
                 document.getElementById('apiKeySection').style.display = 'none';
-                alert('✅ Chave API do Claude guardada com sucesso!');
+                alert('✅ Chave API do Gemini guardada com sucesso!');
             } else {
-                alert('❌ A chave API deve começar com "sk-ant-". Verifica se copiaste corretamente.');
+                alert('❌ Por favor, introduz uma chave API válida.');
             }
         }
 
@@ -1167,8 +1161,8 @@ IMPORTANTE:
             
             if (!message) return;
 
-            if (!claudeApiKey) {
-                alert('⚠️ Por favor, configura primeiro a chave API do Claude!');
+            if (!geminiApiKey) {
+                alert('⚠️ Por favor, configura primeiro a chave API do Gemini!');
                 document.getElementById('apiKeySection').style.display = 'block';
                 return;
             }
@@ -1181,7 +1175,6 @@ IMPORTANTE:
             // Add user message (only on first attempt)
             if (retryCount === 0) {
                 addChatMessage(message, true);
-                chatHistory.push({ role: 'user', content: message });
                 input.value = '';
             }
 
@@ -1189,44 +1182,51 @@ IMPORTANTE:
             showTypingIndicator();
 
             try {
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-key': claudeApiKey,
-                        'anthropic-version': '2023-06-01'
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 2048,
-                        system: SYSTEM_PROMPT,
-                        messages: chatHistory
-                    })
+                // Construir contexto com histórico
+                let fullPrompt = SYSTEM_CONTEXT + "\n\n";
+                
+                // Adicionar últimas 10 mensagens para contexto
+                const recentHistory = chatHistory.slice(-10);
+                recentHistory.forEach(msg => {
+                    fullPrompt += `${msg.role === 'user' ? 'Aluno' : 'Professor Rui'}: ${msg.content}\n`;
                 });
+                
+                fullPrompt += `Aluno: ${message}\nProfessor Rui:`;
+
+                const response = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${geminiApiKey}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{ text: fullPrompt }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 1000,
+                            }
+                        })
+                    }
+                );
 
                 if (!response.ok) {
                     const errorData = await response.json().catch(() => ({}));
                     
-                    // Retry automático para erro 529 (Overloaded)
-                    if (response.status === 529 && retryCount < 3) {
-                        console.log(`Servidor ocupado. Tentativa ${retryCount + 1} de 3...`);
+                    // Retry automático para erros temporários
+                    if ((response.status === 429 || response.status === 503) && retryCount < 3) {
+                        console.log(`Erro temporário. Tentativa ${retryCount + 1} de 3...`);
                         removeTypingIndicator();
                         
-                        // Mostra mensagem temporária
                         const tempMsg = addChatMessage(`⏳ Servidor ocupado... A tentar novamente (${retryCount + 1}/3)`, false);
                         
-                        // Espera 2 segundos e tenta outra vez
                         await new Promise(resolve => setTimeout(resolve, 2000 * (retryCount + 1)));
                         
-                        // Remove mensagem temporária
                         if (tempMsg && tempMsg.parentNode) {
                             tempMsg.parentNode.removeChild(tempMsg);
                         }
                         
-                        // Re-enable input temporarily for retry
                         isProcessing = false;
-                        
-                        // Retry
                         return sendMessage(retryCount + 1);
                     }
                     
@@ -1237,13 +1237,16 @@ IMPORTANTE:
                 
                 removeTypingIndicator();
 
-                const assistantMessage = data.content?.[0]?.text || 
+                const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || 
                                         'Desculpa, não consegui gerar uma resposta. Tenta novamente!';
 
                 addChatMessage(assistantMessage, false);
+                
+                // Atualizar histórico
+                chatHistory.push({ role: 'user', content: message });
                 chatHistory.push({ role: 'assistant', content: assistantMessage });
 
-                // Limit history to last 20 messages to avoid token limits
+                // Limitar histórico a últimas 20 mensagens
                 if (chatHistory.length > 20) {
                     chatHistory = chatHistory.slice(-20);
                 }
@@ -1254,24 +1257,19 @@ IMPORTANTE:
                 
                 let errorMessage = '❌ Ups! Algo correu mal. ';
                 
-                if (error.message.includes('529')) {
-                    errorMessage += 'O servidor está muito ocupado. Já tentei 3 vezes. Por favor, espera 30 segundos e tenta outra vez! ⏱️';
-                } else if (error.message.includes('401') || error.message.includes('authentication')) {
+                if (error.message.includes('403') || error.message.includes('401') || error.message.includes('API_KEY')) {
                     errorMessage += 'A chave API parece estar inválida. Verifica se está correta!';
                     document.getElementById('apiKeySection').style.display = 'block';
                 } else if (error.message.includes('429')) {
-                    errorMessage += 'Fizeste muitos pedidos muito rápido. Espera um pouco!';
-                } else if (error.message.includes('overloaded')) {
-                    errorMessage += 'O Claude está muito ocupado agora. Tenta daqui a uns segundos!';
-                } else if (error.message.includes('credit')) {
-                    errorMessage += 'Parece que os créditos da API acabaram. Adiciona créditos na consola Anthropic.';
+                    errorMessage += 'Fizeste muitos pedidos muito rápido. Espera um pouco e tenta de novo!';
+                } else if (error.message.includes('503') || error.message.includes('overload')) {
+                    errorMessage += 'O servidor está muito ocupado. Já tentei 3 vezes. Espera 30 segundos e tenta outra vez! ⏱️';
                 } else {
-                    errorMessage += 'Erro: ' + error.message;
+                    errorMessage += 'Verifica a tua ligação à internet e tenta novamente.';
                 }
                 
                 addChatMessage(errorMessage, false);
             } finally {
-                // Re-enable input
                 isProcessing = false;
                 input.disabled = false;
                 document.getElementById('sendBtn').disabled = false;
@@ -1563,5 +1561,3 @@ IMPORTANTE:
     </script>
 </body>
 </html>
-
-
