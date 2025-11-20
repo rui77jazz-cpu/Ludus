@@ -696,26 +696,73 @@
             <!-- Chat Section -->
             <div id="chat" class="section">
                 <h2>💬 Professor Rui Virtual</h2>
-                <p style="margin-bottom: 20px; color: #666;">Podes fazer perguntas sobre a matéria, os trabalhos de casa ou qualquer dúvida que tenhas! <span class="emoji">😊</span></p>
-                <div class="chat-container">
-                    <div class="chat-header">
-                        <h3>Professor Rui Virtual</h3>
-                        <p style="font-size: 0.9em;">Estou aqui para te ajudar com as tuas dúvidas!</p>
-                    </div>
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="message assistant">
-                            <strong>Professor Rui Virtual:</strong><br>
-                            Olá! <span class="emoji">👋</span> Sou o Professor Rui Virtual e estou aqui para te ajudar! Podes fazer-me perguntas sobre a matéria, os trabalhos de casa, ou qualquer dúvida que tenhas. Como te posso ajudar hoje?
-                        </div>
-                    </div>
-                    <div class="chat-input-container">
-                        <input type="text" id="chatInput" class="chat-input" placeholder="Escreve a tua pergunta aqui..." onkeypress="if(event.key==='Enter') sendMessage()">
-                        <button onclick="sendMessage()" class="chat-send" id="sendBtn">Enviar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+               <h2>💬 Professor Rui Virtual</h2>
+
+<p style="margin-bottom: 20px; color: #666;">
+   Podes fazer perguntas sobre a matéria, os trabalhos de casa ou qualquer dúvida!
+</p>
+
+<div id="chat-box" style="background:white; padding:20px; border-radius:10px; width:90%; max-width:700px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.1);">
+    
+    <div id="messages" style="height:300px; overflow-y:auto; border:1px solid #ccc; padding:10px; background:#fafafa; border-radius:5px;">
     </div>
+
+    <div style="margin-top:10px;">
+        <input id="userInput" type="text" placeholder="Escreve a tua pergunta..." 
+               style="width:70%; padding:10px; border-radius:5px;">
+        <button onclick="enviar()" style="padding:10px 15px;">Enviar</button>
+    </div>
+
+</div>
+
+<script>
+    const API_KEY = "AIzaSyAtilJpc0AnHIrgjUyPxwwEWLKOUploSes";   // <-- mete a tua key aqui
+
+    function addMsg(text, type) {
+        const box = document.getElementById("messages");
+        const div = document.createElement("div");
+        div.style.margin = "8px";
+        div.style.padding = "10px";
+        div.style.borderRadius = "8px";
+        div.style.background = type === "user" ? "#d2ecff" : "#e2e0ff";
+        div.textContent = text;
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    async function enviar() {
+        const pergunta = document.getElementById("userInput").value.trim();
+        if (!pergunta) return;
+
+        addMsg(pergunta, "user");
+        document.getElementById("userInput").value = "";
+
+        addMsg("A pensar…", "bot");
+
+        try {
+            const resposta = await fetch(
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY,
+                {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: pergunta }] }]
+                    })
+                }
+            );
+
+            const data = await resposta.json();
+            const texto = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+                          "Ups, não consegui responder.";
+
+            document.querySelector("#messages div:last-child").textContent = texto;
+
+        } catch (e) {
+            document.querySelector("#messages div:last-child").textContent = "Erro a ligar ao Gemini.";
+        }
+    }
+</script>
+
 
     <!-- Edit Modal -->
     <div id="editModal" class="modal">
