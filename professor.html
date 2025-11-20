@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Professor Rui Virtual</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #e8e8ff;
+            padding: 20px;
+        }
+
+        #chat {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        #messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            background: #fafafa;
+            border-radius: 5px;
+        }
+
+        .msg-user {
+            background: #d2ecff;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 8px;
+        }
+
+        .msg-bot {
+            background: #e2e0ff;
+            padding: 8px;
+            margin: 5px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>💬 Professor Rui Virtual</h1>
+
+<div id="chat">
+    <div id="messages"></div>
+
+    <input id="userInput" type="text" placeholder="Faz a tua pergunta..." style="width:70%; padding: 10px;">
+    <button onclick="enviar()">Enviar</button>
+</div>
+
+<script>
+    // ⚠️ Aqui vais meter a tua chave secreta do Gemini
+    const API_KEY = "AIzaSyAtilJpc0AnHIrgjUyPxwwEWLKOUploSes";
+
+    function adicionarMensagem(texto, tipo) {
+        const caixa = document.getElementById("messages");
+        const div = document.createElement("div");
+        div.className = tipo === "user" ? "msg-user" : "msg-bot";
+        div.textContent = texto;
+        caixa.appendChild(div);
+        caixa.scrollTop = caixa.scrollHeight;
+    }
+
+    async function enviar() {
+        const pergunta = document.getElementById("userInput").value;
+
+        if (!pergunta.trim()) return;
+
+        adicionarMensagem(pergunta, "user");
+        document.getElementById("userInput").value = "";
+
+        adicionarMensagem("A pensar…", "bot");
+
+        const resposta = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + API_KEY,
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: pergunta }] }]
+                })
+            }
+        );
+
+        const dados = await resposta.json();
+        const texto = dados.candidates?.[0]?.content?.parts?.[0]?.text || "Ups, deu erro.";
+
+        document.querySelector(".msg-bot:last-child").textContent = texto;
+    }
+</script>
+
+</body>
+</html>
