@@ -22,9 +22,9 @@ nav button.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea}
 .card{background:#f8f9fa;padding:14px;border-radius:10px;margin-bottom:12px;border-left:5px solid #667eea;position:relative}
 .card h3{color:#764ba2;margin-bottom:6px}
 .small{font-size:.9rem;color:#555}
-.controls{position:absolute;top:10px;right:10px;display:none}
-.admin-controls.show ~ .card .controls{display:block}
-.btn{background:#667eea;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+.controls{position:absolute;top:10px;right:10px;display:flex;gap:6px}
+.controls.hidden{display:none}
+.btn{background:#667eea;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-size:0.9rem}
 .btn.green{background:#28a745}
 .btn.warn{background:#ffc107;color:#222}
 .btn.red{background:#dc3545}
@@ -45,9 +45,9 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
 .row{display:flex;gap:10px;flex-wrap:wrap}
 .col{flex:1}
 @media(max-width:600px){header h1{font-size:1.1rem}}
-/* small helpers for progress bar */
 .progress-bar{width:100%;height:14px;background:#e9ecef;border-radius:8px;overflow:hidden}
 .progress-fill{height:100%;background:#28a745;width:0%;transition:width .3s}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -74,37 +74,37 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
   <!-- Sections -->
   <div id="tpc" class="section active">
     <h2>📚 Trabalhos de Casa</h2>
-    <div class="admin-controls" id="tpcAdmin"><button class="btn green" onclick="openAddModal('tpc')">➕ Adicionar TPC</button></div>
+    <div class="admin-controls hidden" id="tpcAdmin"><button class="btn green" onclick="openAddModal('tpc')">➕ Adicionar TPC</button></div>
     <div id="tpcList"></div>
   </div>
 
   <div id="materia" class="section">
     <h2>📖 Matéria</h2>
-    <div class="admin-controls" id="materiaAdmin"><button class="btn green" onclick="openAddModal('materia')">➕ Adicionar Matéria</button></div>
+    <div class="admin-controls hidden" id="materiaAdmin"><button class="btn green" onclick="openAddModal('materia')">➕ Adicionar Matéria</button></div>
     <div id="materiaList"></div>
   </div>
 
   <div id="downloads" class="section">
     <h2>📥 Downloads</h2>
-    <div class="admin-controls" id="downloadsAdmin"><button class="btn green" onclick="openAddModal('downloads')">➕ Adicionar Download</button></div>
+    <div class="admin-controls hidden" id="downloadsAdmin"><button class="btn green" onclick="openAddModal('downloads')">➕ Adicionar Download</button></div>
     <div id="downloadsList"></div>
   </div>
 
   <div id="videos" class="section">
     <h2>🎬 Vídeos</h2>
-    <div class="admin-controls" id="videosAdmin"><button class="btn green" onclick="openAddModal('videos')">➕ Adicionar Vídeo</button></div>
+    <div class="admin-controls hidden" id="videosAdmin"><button class="btn green" onclick="openAddModal('videos')">➕ Adicionar Vídeo</button></div>
     <div id="videosList"></div>
   </div>
 
   <div id="avisos" class="section">
     <h2>📣 Avisos</h2>
-    <div class="admin-controls" id="avisosAdmin"><button class="btn green" onclick="openAddModal('avisos')">➕ Publicar Aviso</button></div>
+    <div class="admin-controls hidden" id="avisosAdmin"><button class="btn green" onclick="openAddModal('avisos')">➕ Publicar Aviso</button></div>
     <div id="avisosList"></div>
   </div>
 
   <div id="avaliacao" class="section">
     <h2>📝 Avaliação</h2>
-    <div class="admin-controls" id="avaliacaoAdmin">
+    <div class="admin-controls hidden" id="avaliacaoAdmin">
       <button class="btn green" onclick="openAddModal('avaliacao')">➕ Adicionar Avaliação</button>
       <button class="btn" onclick="openBulkImport()">📥 Importar CSV</button>
     </div>
@@ -114,7 +114,7 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
   <div id="files" class="section">
     <h2>🗂️ Ficheiros no Storage</h2>
     <p class="small">Lista dos ficheiros com storagePath — útil para apagar manualmente ou substituir.</p>
-    <div class="admin-controls" id="filesAdmin"><button class="btn" onclick="refreshFiles()">🔄 Atualizar</button></div>
+    <div class="admin-controls hidden" id="filesAdmin"><button class="btn" onclick="refreshFiles()">🔄 Atualizar</button></div>
     <div id="filesList"></div>
   </div>
 
@@ -151,9 +151,9 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
       <input type="file" id="fileInput" accept=".pdf,.doc,.docx,image/*,video/*" style="display:none" />
       <div id="fileMeta" class="meta"></div>
       <div id="preview" class="preview"></div>
-      <div id="uploadProgress" style="display:none;margin-top:10px"><div class="progress-bar"><div id="progressFill" class="progress-fill" style="height:14px;background:#28a745;width:0%"></div></div><div id="progressText" class="meta"></div></div>
+      <div id="uploadProgress" style="display:none;margin-top:10px"><div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div><div id="progressText" class="meta"></div></div>
       <div class="row" style="margin-top:8px">
-        <button type="button" class="btn warn" onclick="deleteOnlyFile()">🗑️ Apagar ficheiro (manter entrada)</button>
+        <button type="button" class="btn warn" onclick="deleteOnlyFile()">🗑️ Apagar ficheiro</button>
         <button type="button" class="btn" onclick="replaceFile()">🔁 Substituir ficheiro</button>
       </div>
     </div>
@@ -168,7 +168,7 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
     </div>
 
     <div style="text-align:right;margin-top:8px">
-      <button type="button" class="btn btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button type="button" class="btn" onclick="closeModal()">Cancelar</button>
       <button type="submit" class="btn green" id="saveBtn">Guardar</button>
     </div>
   </form>
@@ -180,7 +180,7 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
   <p>Introduz a password:</p>
   <input type="password" id="passwordInput" style="padding:10px;border-radius:8px;border:2px solid #667eea;width:100%" />
   <div style="text-align:right;margin-top:10px"><button class="btn" onclick="checkPassword()">Entrar</button></div>
-  <div id="loginError" class="meta"></div>
+  <div id="loginError" class="meta" style="color:#dc3545;margin-top:8px"></div>
 </div></div>
 
 <!-- Modal: CSV import preview -->
@@ -194,8 +194,13 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
   </div>
 </div></div>
 
+<!-- IMPORTANTE: Importar Firebase antes do script -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+
 <script>
-/* ===================== Config Firebase (mantenha a tua config) ===================== */
+/* ===================== Config Firebase ===================== */
 const firebaseConfig = {
   apiKey: "AIzaSyBg5GJhEOGbtp5mvmLj2pBSM_dAiSpO0j8",
   authDomain: "ludus-virtualis.firebaseapp.com",
@@ -206,10 +211,23 @@ const firebaseConfig = {
   appId: "1:175619516992:web:11b91ef2f6daeedba68da5",
   measurementId: "G-9Y9LL26S7X"
 };
-let firebaseInitialized=false, db=null, storage=null;
-try{firebase.initializeApp(firebaseConfig); db=firebase.database(); storage=firebase.storage(); firebaseInitialized=true; console.log('Firebase ready');}catch(e){console.error(e)}
 
-/* ===================== Vars globais simples ===================== */
+let firebaseInitialized = false;
+let db = null;
+let storage = null;
+
+try {
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.database();
+  storage = firebase.storage();
+  firebaseInitialized = true;
+  console.log('Firebase inicializado com sucesso');
+} catch(e) {
+  console.error('Erro ao inicializar Firebase:', e);
+  alert('Erro ao inicializar Firebase. Verifica a consola.');
+}
+
+/* ===================== Vars globais ===================== */
 const DEFAULT_PASSWORD = 'professor123';
 let isAdminMode = false;
 let currentEditType = '';
@@ -219,210 +237,736 @@ let uploadedFilePath = null;
 let uploadedFileName = null;
 
 /* ===================== UI util ===================== */
-function showLoading(){document.getElementById('loading').classList.add('show');}
-function hideLoading(){document.getElementById('loading').classList.remove('show');}
-function showSection(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');Array.from(document.querySelectorAll('.nav-btn')).find(b=>b.getAttribute('onclick')===`showSection('${id}')`).classList.add('active')}
+function showLoading() {
+  document.getElementById('loading').classList.add('show');
+}
+
+function hideLoading() {
+  document.getElementById('loading').classList.remove('show');
+}
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  Array.from(document.querySelectorAll('.nav-btn')).find(b => 
+    b.getAttribute('onclick') === `showSection('${id}')`
+  ).classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('editModal').classList.remove('show');
+  document.getElementById('fileInput').value = '';
+  uploadedFileURL = null;
+  uploadedFilePath = null;
+  uploadedFileName = null;
+}
 
 /* ===================== Admin toggle ===================== */
-function toggleAdmin(){document.getElementById('loginModal').classList.add('show');}
-function checkPassword(){const v=document.getElementById('passwordInput').value; if(v===DEFAULT_PASSWORD){isAdminMode=true;document.getElementById('loginModal').classList.remove('show');document.querySelectorAll('.admin-controls').forEach(el=>el.classList.add('show'));document.getElementById('passwordInput').value='';document.getElementById('loginError').textContent=''}else{document.getElementById('loginError').textContent='Senha incorreta'}}
+function toggleAdmin() {
+  if (isAdminMode) {
+    // Já está em modo admin, desativar
+    isAdminMode = false;
+    document.querySelectorAll('.admin-controls').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.controls').forEach(el => el.classList.add('hidden'));
+    document.getElementById('adminToggle').textContent = '👨‍🏫 Modo Professor';
+  } else {
+    // Pedir password
+    document.getElementById('loginModal').classList.add('show');
+  }
+}
+
+function checkPassword() {
+  const v = document.getElementById('passwordInput').value;
+  if (v === DEFAULT_PASSWORD) {
+    isAdminMode = true;
+    document.getElementById('loginModal').classList.remove('show');
+    document.querySelectorAll('.admin-controls').forEach(el => el.classList.remove('hidden'));
+    document.getElementById('passwordInput').value = '';
+    document.getElementById('loginError').textContent = '';
+    document.getElementById('adminToggle').textContent = '🔓 Modo Ativo';
+    // Recarregar listas para mostrar botões de edição
+    renderList('tpc');
+    renderList('materia');
+    renderList('downloads');
+    renderList('videos');
+    renderList('avisos');
+    renderList('avaliacao');
+  } else {
+    document.getElementById('loginError').textContent = 'Senha incorreta';
+  }
+}
 
 /* ===================== Render genérico ===================== */
-function renderList(type){
-  const el=document.getElementById(type+'List'); if(!el) return;
-  if(!firebaseInitialized){ el.innerHTML='<div class="card">Firebase não configurado</div>'; return; }
+function renderList(type) {
+  const el = document.getElementById(type + 'List');
+  if (!el) return;
+  
+  if (!firebaseInitialized) {
+    el.innerHTML = '<div class="card">Firebase não configurado</div>';
+    return;
+  }
+  
   showLoading();
-  db.ref(type).once('value').then(snapshot=>{
-    hideLoading(); el.innerHTML=''; const data=snapshot.val(); if(!data){ el.innerHTML='<div class="card small">Ainda não há itens.</div>'; return; }
-    Object.keys(data).reverse().forEach(key=>{ const item=data[key]; const div=document.createElement('div'); div.className='card';
-      let ctrl=''; if(isAdminMode) ctrl=`<div class="controls"><button class="btn warn" onclick="editItem('${type}','${key}')">✏️</button><button class="btn red" onclick="deleteItem('${type}','${key}')">🗑️</button></div>`;
-      let html=`${ctrl}<h3>${item.title||''}</h3>`;
-      if(item.date) html+=`<div class="small">📅 ${item.date}</div>`;
-      if(item.studentName) html+=`<div class="small"><strong>Aluno:</strong> ${item.studentName}</div>`;
-      if(item.grade) html+=`<div class="small"><strong>Nota:</strong> ${item.grade}</div>`;
-      if(item.description) html+=`<div class="small">${item.description}</div>`;
-      if(item.fileUrl){
-        const name=item.fileName||item.fileUrl;
-        const isImage=/\.(jpe?g|png|gif|webp|bmp)$/i.test(name);
-        const isVideo=/\.(mp4|webm|ogg|mov)$/i.test(name) || (item.fileUrl && item.fileUrl.includes('video'));
-        if(isImage) html+=`<div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" style="max-width:300px;border-radius:8px"></a></div><div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">🔍 Abrir imagem</a></div>`;
-        else if(isVideo) html+=`<div style="margin-top:8px"><video controls style="max-width:420px"><source src="${item.fileUrl}"></video></div><div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">▶ Abrir vídeo</a></div>`;
-        else html+=`<div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">📄 Descarregar</a></div>`;
-        // show storagePath in admin
-        if(isAdminMode) html+=`<div class="meta">storagePath: ${item.storagePath||'<i>n/a</i>'} | fileName: ${item.fileName||'<i>n/a</i>'}</div>`;
+  db.ref(type).once('value').then(snapshot => {
+    hideLoading();
+    el.innerHTML = '';
+    const data = snapshot.val();
+    
+    if (!data) {
+      el.innerHTML = '<div class="card small">Ainda não há itens.</div>';
+      return;
+    }
+    
+    Object.keys(data).reverse().forEach(key => {
+      const item = data[key];
+      const div = document.createElement('div');
+      div.className = 'card';
+      
+      let ctrl = '';
+      if (isAdminMode) {
+        ctrl = `<div class="controls">
+          <button class="btn warn" onclick="editItem('${type}','${key}')">✏️</button>
+          <button class="btn red" onclick="deleteItem('${type}','${key}')">🗑️</button>
+        </div>`;
       }
-      if(item.url && !item.fileUrl) html+=`<div style="margin-top:8px"><a href="${item.url}" target="_blank" class="btn">▶ Ver link</a></div>`;
-      div.innerHTML=html; el.appendChild(div);
+      
+      let html = `${ctrl}<h3>${item.title || ''}</h3>`;
+      
+      if (item.date) html += `<div class="small">📅 ${item.date}</div>`;
+      if (item.studentName) html += `<div class="small"><strong>Aluno:</strong> ${item.studentName}</div>`;
+      if (item.grade) html += `<div class="small"><strong>Nota:</strong> ${item.grade}</div>`;
+      if (item.description) html += `<div class="small">${item.description}</div>`;
+      
+      if (item.fileUrl) {
+        const name = item.fileName || item.fileUrl;
+        const isImage = /\.(jpe?g|png|gif|webp|bmp)$/i.test(name);
+        const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(name) || (item.fileUrl && item.fileUrl.includes('video'));
+        
+        if (isImage) {
+          html += `<div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" style="max-width:300px;border-radius:8px"></a></div>`;
+          html += `<div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">🔍 Abrir imagem</a>`;
+          if (isAdminMode) {
+            html += ` <button class="btn red" onclick="deleteFileOnly('${type}','${key}')">🗑️ Apagar imagem</button>`;
+          }
+          html += `</div>`;
+        } else if (isVideo) {
+          html += `<div style="margin-top:8px"><video controls style="max-width:420px"><source src="${item.fileUrl}"></video></div>`;
+          html += `<div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">▶ Abrir vídeo</a>`;
+          if (isAdminMode) {
+            html += ` <button class="btn red" onclick="deleteFileOnly('${type}','${key}')">🗑️ Apagar vídeo</button>`;
+          }
+          html += `</div>`;
+        } else {
+          html += `<div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">📄 Descarregar</a>`;
+          if (isAdminMode) {
+            html += ` <button class="btn red" onclick="deleteFileOnly('${type}','${key}')">🗑️ Apagar ficheiro</button>`;
+          }
+          html += `</div>`;
+        }
+        
+        if (isAdminMode) {
+          html += `<div class="meta">storagePath: ${item.storagePath || '<i>n/a</i>'} | fileName: ${item.fileName || '<i>n/a</i>'}</div>`;
+        }
+      }
+      
+      if (item.url && !item.fileUrl) {
+        html += `<div style="margin-top:8px"><a href="${item.url}" target="_blank" class="btn">▶ Ver link</a></div>`;
+      }
+      
+      div.innerHTML = html;
+      el.appendChild(div);
     });
-  }).catch(err=>{ hideLoading(); el.innerHTML='<div class="card small">Erro ao carregar</div>'; console.error(err);});
+  }).catch(err => {
+    hideLoading();
+    el.innerHTML = '<div class="card small">Erro ao carregar</div>';
+    console.error(err);
+  });
 }
 
 /* ===================== Open modal for add/edit ===================== */
-function openAddModal(type){ currentEditType=type; currentEditKey=null; uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null;
+function openAddModal(type) {
+  currentEditType = type;
+  currentEditKey = null;
+  uploadedFileURL = null;
+  uploadedFilePath = null;
+  uploadedFileName = null;
+  
   document.getElementById('modalTitle').textContent = 'Adicionar ' + type;
-  document.getElementById('itemTitle').value=''; document.getElementById('itemDate').value=''; document.getElementById('itemDescription').value=''; document.getElementById('itemUrl').value='';
-  document.getElementById('fileInput').value=''; document.getElementById('fileMeta').textContent=''; document.getElementById('preview').innerHTML='';
-  document.getElementById('studentName').value=''; document.getElementById('studentGrade').value='';
-  document.getElementById('dateGroup').style.display = type==='tpc' ? 'block':'none';
-  document.getElementById('urlGroup').style.display = type==='videos' ? 'block':'none';
-  document.getElementById('fileGroup').style.display = (type==='downloads' || type==='videos' || type==='avaliacao') ? 'block':'none';
-  document.getElementById('studentGroup').style.display = type==='avaliacao' ? 'block':'none';
-  document.getElementById('gradeGroup').style.display = type==='avaliacao' ? 'block':'none';
+  document.getElementById('itemTitle').value = '';
+  document.getElementById('itemDate').value = '';
+  document.getElementById('itemDescription').value = '';
+  document.getElementById('itemUrl').value = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('fileMeta').textContent = '';
+  document.getElementById('preview').innerHTML = '';
+  document.getElementById('studentName').value = '';
+  document.getElementById('studentGrade').value = '';
+  
+  document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
+  document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
+  document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'videos' || type === 'avaliacao') ? 'block' : 'none';
+  document.getElementById('studentGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+  document.getElementById('gradeGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+  
   document.getElementById('editModal').classList.add('show');
 }
 
 /* ===================== Edit item ===================== */
-function editItem(type,key){ currentEditType=type; currentEditKey=key; showLoading();
-  db.ref(`${type}/${key}`).once('value').then(snap=>{ hideLoading(); const item=snap.val()||{};
-    document.getElementById('modalTitle').textContent='Editar ' + type;
-    document.getElementById('itemTitle').value=item.title||'';
-    document.getElementById('itemDate').value=item.date||'';
-    document.getElementById('itemDescription').value=item.description||'';
-    document.getElementById('itemUrl').value=item.url||'';
-    document.getElementById('fileMeta').textContent = item.fileName?('Ficheiro atual: '+item.fileName):'';
-    document.getElementById('preview').innerHTML='';
-    uploadedFileURL=item.fileUrl||null; uploadedFilePath=item.storagePath||null; uploadedFileName=item.fileName||null;
-    if(item.fileUrl){ if(item.fileUrl.match(/\.(jpe?g|png|gif|webp|bmp)$/i)) document.getElementById('preview').innerHTML=`<a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" style="max-width:320px;border-radius:8px"></a>`;
-      else if(item.fileUrl.match(/\.(mp4|webm|ogg|mov)$/i) || (item.fileUrl.includes('video'))) document.getElementById('preview').innerHTML=`<video controls style="max-width:420px"><source src="${item.fileUrl}"></video>`;
-      else document.getElementById('preview').innerHTML=`<a href="${item.fileUrl}" target="_blank" class="btn">📄 Abrir ficheiro existente</a>`;}
-    document.getElementById('dateGroup').style.display = type==='tpc' ? 'block':'none';
-    document.getElementById('urlGroup').style.display = type==='videos' ? 'block':'none';
-    document.getElementById('fileGroup').style.display = (type==='downloads' || type==='videos' || type==='avaliacao') ? 'block':'none';
-    document.getElementById('studentGroup').style.display = type==='avaliacao' ? 'block':'none';
-    document.getElementById('gradeGroup').style.display = type==='avaliacao' ? 'block':'none';
+function editItem(type, key) {
+  currentEditType = type;
+  currentEditKey = key;
+  showLoading();
+  
+  db.ref(`${type}/${key}`).once('value').then(snap => {
+    hideLoading();
+    const item = snap.val() || {};
+    
+    document.getElementById('modalTitle').textContent = 'Editar ' + type;
+    document.getElementById('itemTitle').value = item.title || '';
+    document.getElementById('itemDate').value = item.date || '';
+    document.getElementById('itemDescription').value = item.description || '';
+    document.getElementById('itemUrl').value = item.url || '';
+    document.getElementById('fileMeta').textContent = item.fileName ? ('Ficheiro atual: ' + item.fileName) : '';
+    document.getElementById('preview').innerHTML = '';
+    document.getElementById('studentName').value = item.studentName || '';
+    document.getElementById('studentGrade').value = item.grade || '';
+    
+    uploadedFileURL = item.fileUrl || null;
+    uploadedFilePath = item.storagePath || null;
+    uploadedFileName = item.fileName || null;
+    
+    if (item.fileUrl) {
+      if (item.fileUrl.match(/\.(jpe?g|png|gif|webp|bmp)$/i)) {
+        document.getElementById('preview').innerHTML = `<a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" style="max-width:320px;border-radius:8px"></a>`;
+      } else if (item.fileUrl.match(/\.(mp4|webm|ogg|mov)$/i) || (item.fileUrl.includes('video'))) {
+        document.getElementById('preview').innerHTML = `<video controls style="max-width:420px"><source src="${item.fileUrl}"></video>`;
+      } else {
+        document.getElementById('preview').innerHTML = `<a href="${item.fileUrl}" target="_blank" class="btn">📄 Abrir ficheiro existente</a>`;
+      }
+    }
+    
+    document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
+    document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
+    document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'videos' || type === 'avaliacao') ? 'block' : 'none';
+    document.getElementById('studentGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+    document.getElementById('gradeGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+    
     document.getElementById('editModal').classList.add('show');
-  }).catch(err=>{ hideLoading(); alert('Erro: '+err.message) });}
-
-/* ===================== Upload file (save URL + storagePath) ===================== */
-function uploadFile(file){
-  const max=40*1024*1024; // 40MB
-  const saveBtn=document.getElementById('saveBtn');
-  saveBtn.disabled=true;
-  if(file.size>max){ alert('Ficheiro demasiado grande. Limite: 40MB'); document.getElementById('fileInput').value=''; saveBtn.disabled=false; return; }
-  const folder=(currentEditType==='videos')?'videos':'downloads';
-  const name = Date.now()+'_'+file.name;
-  const ref = storage.ref(`${folder}/${name}`);
-  const task = ref.put(file);
-  document.getElementById('uploadProgress').style.display='block';
-  task.on('state_changed',snap=>{ const p=(snap.bytesTransferred/snap.totalBytes)*100; document.getElementById('progressFill').style.width=p+'%'; document.getElementById('progressText').textContent=Math.round(p)+'%'; }, err=>{ alert('Erro no upload: '+err.message); document.getElementById('uploadProgress').style.display='none'; saveBtn.disabled=false; }, ()=>{
-    task.snapshot.ref.getDownloadURL().then(url=>{ uploadedFileURL=url; uploadedFilePath=task.snapshot.ref.fullPath; uploadedFileName=file.name; document.getElementById('progressText').textContent='✅ Completo'; saveBtn.disabled=false; setTimeout(()=>document.getElementById('uploadProgress').style.display='none',900); // preview
-      const preview=document.getElementById('preview'); preview.innerHTML=''; if(file.type.startsWith('image/')) preview.innerHTML=`<a href="${uploadedFileURL}" target="_blank"><img src="${uploadedFileURL}" style="max-width:320px;border-radius:8px"></a>`; else if(file.type.startsWith('video/')) preview.innerHTML=`<video controls style="max-width:420px"><source src="${uploadedFileURL}"></video>`; else preview.innerHTML=`<a href="${uploadedFileURL}" target="_blank" class="btn">📄 Abrir ficheiro</a>`; });
+  }).catch(err => {
+    hideLoading();
+    alert('Erro: ' + err.message);
   });
 }
 
-/* file input listener */
-document.getElementById('fileInput').addEventListener('change',function(e){ const file=e.target.files[0]; if(!file) return; document.getElementById('fileMeta').textContent='📎 '+file.name; document.getElementById('preview').innerHTML=''; // local preview
-  if(file.type.startsWith('image/')){ const r=new FileReader(); r.onload=function(ev){ document.getElementById('preview').innerHTML=`<img src="${ev.target.result}" style="max-width:320px;border-radius:8px">`; }; r.readAsDataURL(file); }
-  else if(file.type.startsWith('video/')){ const r=new FileReader(); r.onload=function(ev){ document.getElementById('preview').innerHTML=`<video controls style="max-width:420px"><source src="${ev.target.result}"></video>`; }; r.readAsDataURL(file); }
+/* ===================== Upload file ===================== */
+function uploadFile(file) {
+  const max = 40 * 1024 * 1024; // 40MB
+  const saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  
+  if (file.size > max) {
+    alert('Ficheiro demasiado grande. Limite: 40MB');
+    document.getElementById('fileInput').value = '';
+    saveBtn.disabled = false;
+    return;
+  }
+  
+  const folder = (currentEditType === 'videos') ? 'videos' : (currentEditType === 'avaliacao') ? 'avaliacoes' : 'downloads';
+  const name = Date.now() + '_' + file.name;
+  const ref = storage.ref(`${folder}/${name}`);
+  const task = ref.put(file);
+  
+  document.getElementById('uploadProgress').style.display = 'block';
+  
+  task.on('state_changed',
+    snap => {
+      const p = (snap.bytesTransferred / snap.totalBytes) * 100;
+      document.getElementById('progressFill').style.width = p + '%';
+      document.getElementById('progressText').textContent = Math.round(p) + '%';
+    },
+    err => {
+      alert('Erro no upload: ' + err.message);
+      document.getElementById('uploadProgress').style.display = 'none';
+      saveBtn.disabled = false;
+    },
+    () => {
+      task.snapshot.ref.getDownloadURL().then(url => {
+        uploadedFileURL = url;
+        uploadedFilePath = task.snapshot.ref.fullPath;
+        uploadedFileName = file.name;
+        document.getElementById('progressText').textContent = '✅ Completo';
+        saveBtn.disabled = false;
+        
+        setTimeout(() => document.getElementById('uploadProgress').style.display = 'none', 900);
+        
+        // Preview
+        const preview = document.getElementById('preview');
+        preview.innerHTML = '';
+        if (file.type.startsWith('image/')) {
+          preview.innerHTML = `<a href="${uploadedFileURL}" target="_blank"><img src="${uploadedFileURL}" style="max-width:320px;border-radius:8px"></a>`;
+        } else if (file.type.startsWith('video/')) {
+          preview.innerHTML = `<video controls style="max-width:420px"><source src="${uploadedFileURL}"></video>`;
+        } else {
+          preview.innerHTML = `<a href="${uploadedFileURL}" target="_blank" class="btn">📄 Abrir ficheiro</a>`;
+        }
+      });
+    }
+  );
+}
+
+/* File input listener */
+document.getElementById('fileInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  document.getElementById('fileMeta').textContent = '📎 ' + file.name;
+  document.getElementById('preview').innerHTML = '';
+  
+  // Local preview enquanto faz upload
+  if (file.type.startsWith('image/')) {
+    const r = new FileReader();
+    r.onload = function(ev) {
+      document.getElementById('preview').innerHTML = `<img src="${ev.target.result}" style="max-width:320px;border-radius:8px">`;
+    };
+    r.readAsDataURL(file);
+  } else if (file.type.startsWith('video/')) {
+    const r = new FileReader();
+    r.onload = function(ev) {
+      document.getElementById('preview').innerHTML = `<video controls style="max-width:420px"><source src="${ev.target.result}"></video>`;
+    };
+    r.readAsDataURL(file);
+  }
+  
   uploadFile(file);
 });
 
-/* ===================== Delete only file from storage (keep DB entry) ===================== */
-function deleteOnlyFile(){
-  if(!confirm('Apagar apenas o ficheiro associado ao item? (A entrada permanece)')) return;
-  if(!currentEditKey){ // new item not saved yet: just clear preview and reset upload vars
-    if(uploadedFilePath){ // if file uploaded, try delete
-      storage.ref(uploadedFilePath).delete().then(()=>{ uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null; document.getElementById('preview').innerHTML=''; document.getElementById('fileMeta').textContent=''; alert('Ficheiro apagado do Storage.'); }).catch(()=>{ uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null; document.getElementById('preview').innerHTML=''; document.getElementById('fileMeta').textContent=''; alert('Não foi possível apagar do Storage (ou já removido). Limpei a preview.'); });
-    } else { document.getElementById('preview').innerHTML=''; document.getElementById('fileMeta').textContent=''; uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null; }
+/* ===================== Delete only file from storage ===================== */
+function deleteOnlyFile() {
+  if (!confirm('Apagar apenas o ficheiro? (A entrada permanece)')) return;
+  
+  if (!currentEditKey) {
+    // Item novo ainda não guardado
+    if (uploadedFilePath) {
+      storage.ref(uploadedFilePath).delete().then(() => {
+        uploadedFileURL = null;
+        uploadedFilePath = null;
+        uploadedFileName = null;
+        document.getElementById('preview').innerHTML = '';
+        document.getElementById('fileMeta').textContent = '';
+        alert('Ficheiro apagado.');
+      }).catch(() => {
+        uploadedFileURL = null;
+        uploadedFilePath = null;
+        uploadedFileName = null;
+        document.getElementById('preview').innerHTML = '';
+        document.getElementById('fileMeta').textContent = '';
+      });
+    } else {
+      document.getElementById('preview').innerHTML = '';
+      document.getElementById('fileMeta').textContent = '';
+      uploadedFileURL = null;
+      uploadedFilePath = null;
+      uploadedFileName = null;
+    }
     return;
   }
+  
+  // Item já existe na DB
   showLoading();
-  db.ref(`${currentEditType}/${currentEditKey}`).once('value').then(snap=>{
-    const item=snap.val(); const sp=item && item.storagePath?item.storagePath:null;
-    if(!sp){ hideLoading(); alert('Item não tem ficheiro associado.'); return; }
-    storage.ref(sp).delete().then(()=>{ // remove storage then clear DB fields for that item (keep the rest)
-      const updates={ fileUrl:null, storagePath:null, fileName:null };
-      db.ref(`${currentEditType}/${currentEditKey}`).update(updates).then(()=>{ hideLoading(); renderList(currentEditType); document.getElementById('preview').innerHTML=''; document.getElementById('fileMeta').textContent=''; uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null; alert('Ficheiro apagado e entrada atualizada.'); }).catch(e=>{ hideLoading(); alert('Erro a atualizar DB: '+e.message); });
-    }).catch(e=>{ hideLoading(); if(confirm('Erro ao apagar no Storage. Queres apenas remover referência no site?')){ db.ref(`${currentEditType}/${currentEditKey}`).update({fileUrl:null,storagePath:null,fileName:null}).then(()=>{ renderList(currentEditType); alert('Referência removida.'); }).catch(err=>alert('Erro: '+err.message)); } });
-  }).catch(e=>{ hideLoading(); alert('Erro a ler item: '+e.message); });
+  db.ref(`${currentEditType}/${currentEditKey}`).once('value').then(snap => {
+    const item = snap.val();
+    const sp = item && item.storagePath ? item.storagePath : null;
+    
+    if (!sp) {
+      hideLoading();
+      alert('Item não tem ficheiro associado.');
+      return;
+    }
+    
+    storage.ref(sp).delete().then(() => {
+      const updates = { fileUrl: null, storagePath: null, fileName: null };
+      db.ref(`${currentEditType}/${currentEditKey}`).update(updates).then(() => {
+        hideLoading();
+        renderList(currentEditType);
+        document.getElementById('preview').innerHTML = '';
+        document.getElementById('fileMeta').textContent = '';
+        uploadedFileURL = null;
+        uploadedFilePath = null;
+        uploadedFileName = null;
+        alert('Ficheiro apagado e entrada atualizada.');
+      }).catch(e => {
+        hideLoading();
+        alert('Erro a atualizar DB: ' + e.message);
+      });
+    }).catch(e => {
+      hideLoading();
+      if (confirm('Erro ao apagar no Storage. Queres apenas remover referência?')) {
+        db.ref(`${currentEditType}/${currentEditKey}`).update({
+          fileUrl: null,
+          storagePath: null,
+          fileName: null
+        }).then(() => {
+          renderList(currentEditType);
+          alert('Referência removida.');
+        }).catch(err => alert('Erro: ' + err.message));
+      }
+    });
+  }).catch(e => {
+    hideLoading();
+    alert('Erro a ler item: ' + e.message);
+  });
 }
 
-/* ===================== Replace file: allows selecting new file to replace existing */
-function replaceFile(){
+/* ===================== Delete file from card view ===================== */
+function deleteFileOnly(type, key) {
+  if (!confirm('Apagar apenas o ficheiro deste item? (O item permanece sem ficheiro)')) return;
+  
+  showLoading();
+  db.ref(`${type}/${key}`).once('value').then(snap => {
+    const item = snap.val();
+    const sp = item && item.storagePath ? item.storagePath : null;
+    
+    if (!sp) {
+      hideLoading();
+      alert('Item não tem ficheiro associado.');
+      return;
+    }
+    
+    storage.ref(sp).delete().then(() => {
+      const updates = { fileUrl: null, storagePath: null, fileName: null };
+      db.ref(`${type}/${key}`).update(updates).then(() => {
+        hideLoading();
+        renderList(type);
+        alert('Ficheiro apagado. Item mantido.');
+      }).catch(e => {
+        hideLoading();
+        alert('Erro a atualizar DB: ' + e.message);
+      });
+    }).catch(e => {
+      hideLoading();
+      if (confirm('Erro ao apagar no Storage. Queres apenas remover referência?')) {
+        db.ref(`${type}/${key}`).update({
+          fileUrl: null,
+          storagePath: null,
+          fileName: null
+        }).then(() => {
+          renderList(type);
+          alert('Referência removida.');
+        }).catch(err => alert('Erro: ' + err.message));
+      }
+    });
+  }).catch(e => {
+    hideLoading();
+    alert('Erro: ' + e.message);
+  });
+}
+
+/* ===================== Replace file ===================== */
+function replaceFile() {
   document.getElementById('fileInput').click();
 }
 
-/* ===================== Submit form: save item to DB ===================== */
-document.getElementById('editForm').addEventListener('submit',function(e){ e.preventDefault();
-  const title=document.getElementById('itemTitle').value.trim(); const description=document.getElementById('itemDescription').value.trim();
-  if(!title){ alert('Escreve um título'); return; }
-  const obj={ title, description, timestamp:Date.now() };
-  if(currentEditType==='tpc') obj.date=document.getElementById('itemDate').value;
-  if(currentEditType==='videos'){
-    const url=document.getElementById('itemUrl').value.trim();
-    if(url) obj.url=url;
+/* ===================== Submit form: save item ===================== */
+document.getElementById('editForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const title = document.getElementById('itemTitle').value.trim();
+  const description = document.getElementById('itemDescription').value.trim();
+  
+  if (!title) {
+    alert('Escreve um título');
+    return;
   }
-  if(currentEditType==='downloads' || currentEditType==='videos' || currentEditType==='avaliacao'){
-    if(uploadedFileURL){ obj.fileUrl=uploadedFileURL; obj.fileName=uploadedFileName || null; obj.storagePath=uploadedFilePath || null; }
-    else if(!currentEditKey && (currentEditType==='downloads' || currentEditType==='videos')){ alert('Carrega um ficheiro!'); return; }
+  
+  const obj = {
+    title,
+    description,
+    timestamp: Date.now()
+  };
+  
+  if (currentEditType === 'tpc') {
+    obj.date = document.getElementById('itemDate').value;
   }
-  if(currentEditType==='avaliacao'){ obj.studentName=document.getElementById('studentName').value || null; obj.grade=document.getElementById('studentGrade').value || null; }
+  
+  if (currentEditType === 'videos') {
+    const url = document.getElementById('itemUrl').value.trim();
+    if (url) obj.url = url;
+  }
+  
+  if (currentEditType === 'downloads' || currentEditType === 'videos' || currentEditType === 'avaliacao') {
+    if (uploadedFileURL) {
+      obj.fileUrl = uploadedFileURL;
+      obj.fileName = uploadedFileName || null;
+      obj.storagePath = uploadedFilePath || null;
+    } else if (!currentEditKey && (currentEditType === 'downloads' || currentEditType === 'videos')) {
+      alert('Carrega um ficheiro!');
+      return;
+    }
+  }
+  
+  if (currentEditType === 'avaliacao') {
+    obj.studentName = document.getElementById('studentName').value || null;
+    obj.grade = document.getElementById('studentGrade').value || null;
+  }
+  
   showLoading();
-  const ref = currentEditKey ? db.ref(`${currentEditType}/${currentEditKey}`) : db.ref(currentEditType).push();
-  ref.set(obj).then(()=>{ hideLoading(); renderList(currentEditType); closeModal(); alert('Guardado'); }).catch(e=>{ hideLoading(); alert('Erro ao guardar: '+e.message); });
+  
+  const ref = currentEditKey ? 
+    db.ref(`${currentEditType}/${currentEditKey}`) : 
+    db.ref(currentEditType).push();
+  
+  ref.set(obj).then(() => {
+    hideLoading();
+    renderList(currentEditType);
+    closeModal();
+    alert('Guardado');
+  }).catch(e => {
+    hideLoading();
+    alert('Erro ao guardar: ' + e.message);
+  });
 });
 
-/* ===================== Delete item (file+db) ===================== */
-function deleteItem(type,key){
-  if(!confirm('Apagar item e ficheiro?')) return;
+/* ===================== Delete item (file + db) ===================== */
+function deleteItem(type, key) {
+  if (!confirm('Apagar item completo (incluindo ficheiro)?')) return;
+  
   showLoading();
-  db.ref(`${type}/${key}`).once('value').then(snap=>{
-    const item=snap.val(); const sp=item && item.storagePath?item.storagePath:null;
-    const removeDb=()=>db.ref(`${type}/${key}`).remove();
-    if(sp){
-      storage.ref(sp).delete().then(()=>{ removeDb().then(()=>{ hideLoading(); renderList(type); alert('Item e ficheiro apagados.'); }); }).catch(err=>{ hideLoading(); if(confirm('Erro ao apagar ficheiro. Apagar só a entrada no site?')){ removeDb().then(()=>{ renderList(type); alert('Entrada removida.'); }); } });
-    } else { removeDb().then(()=>{ hideLoading(); renderList(type); alert('Item apagado.'); }); }
-  }).catch(e=>{ hideLoading(); alert('Erro: '+e.message); });
+  db.ref(`${type}/${key}`).once('value').then(snap => {
+    const item = snap.val();
+    const sp = item && item.storagePath ? item.storagePath : null;
+    
+    const removeDb = () => db.ref(`${type}/${key}`).remove();
+    
+    if (sp) {
+      storage.ref(sp).delete().then(() => {
+        removeDb().then(() => {
+          hideLoading();
+          renderList(type);
+          alert('Item e ficheiro apagados.');
+        });
+      }).catch(err => {
+        hideLoading();
+        if (confirm('Erro ao apagar ficheiro. Apagar só a entrada?')) {
+          removeDb().then(() => {
+            renderList(type);
+            alert('Entrada removida.');
+          });
+        }
+      });
+    } else {
+      removeDb().then(() => {
+        hideLoading();
+        renderList(type);
+        alert('Item apagado.');
+      });
+    }
+  }).catch(e => {
+    hideLoading();
+    alert('Erro: ' + e.message);
+  });
 }
 
-/* ===================== Files list: listar ficheiros conhecidos (por storagePath guardado no DB) ===================== */
-function refreshFiles(){
-  const list=document.getElementById('filesList'); list.innerHTML='';
-  if(!firebaseInitialized){ list.innerHTML='<div class="card small">Firebase não configurado</div>'; return; }
+/* ===================== Files list ===================== */
+function refreshFiles() {
+  const list = document.getElementById('filesList');
+  list.innerHTML = '';
+  
+  if (!firebaseInitialized) {
+    list.innerHTML = '<div class="card small">Firebase não configurado</div>';
+    return;
+  }
+  
   showLoading();
-  // varrer as coleções e juntar storagePath
-  const collections=['downloads','videos','avaliacao','tpc','materia','avisos'];
-  const found=[];
-  let remaining=collections.length;
-  collections.forEach(col=>{
-    db.ref(col).once('value').then(snap=>{
-      const data=snap.val(); if(data) Object.keys(data).forEach(k=>{ const it=data[k]; if(it && it.storagePath) found.push({col, key:k, title:it.title||'', storagePath:it.storagePath, fileName:it.fileName||''}); });
-    }).catch(()=>{}).finally(()=>{ remaining--; if(remaining===0){ hideLoading(); if(!found.length) list.innerHTML='<div class="card small">Nenhum ficheiro encontrado com storagePath.</div>'; else{ found.forEach(f=>{ const d=document.createElement('div'); d.className='card'; d.innerHTML=`<h3>${f.title||'(sem título)'}</h3><div class="small">coleção: ${f.col}</div><div class="meta">path: ${f.storagePath}</div><div style="margin-top:8px"><button class="btn red" onclick="directDelete('${f.col}','${f.key}','${f.storagePath}')">🗑️ Apagar do Storage & DB</button></div>`; list.appendChild(d); }); } } });
+  const collections = ['downloads', 'videos', 'avaliacao', 'tpc', 'materia', 'avisos'];
+  const found = [];
+  let remaining = collections.length;
+  
+  collections.forEach(col => {
+    db.ref(col).once('value').then(snap => {
+      const data = snap.val();
+      if (data) {
+        Object.keys(data).forEach(k => {
+          const it = data[k];
+          if (it && it.storagePath) {
+            found.push({
+              col,
+              key: k,
+              title: it.title || '',
+              storagePath: it.storagePath,
+              fileName: it.fileName || ''
+            });
+          }
+        });
+      }
+    }).catch(() => {}).finally(() => {
+      remaining--;
+      if (remaining === 0) {
+        hideLoading();
+        if (!found.length) {
+          list.innerHTML = '<div class="card small">Nenhum ficheiro encontrado.</div>';
+        } else {
+          found.forEach(f => {
+            const d = document.createElement('div');
+            d.className = 'card';
+            d.innerHTML = `
+              <h3>${f.title || '(sem título)'}</h3>
+              <div class="small">coleção: ${f.col}</div>
+              <div class="meta">path: ${f.storagePath}</div>
+              <div style="margin-top:8px">
+                <button class="btn red" onclick="directDelete('${f.col}','${f.key}','${f.storagePath.replace(/'/g, "\\'")}')">🗑️ Apagar</button>
+              </div>
+            `;
+            list.appendChild(d);
+          });
+        }
+      }
+    });
   });
 }
 
 /* ===================== Direct delete from files list ===================== */
-function directDelete(col,key,storagePath){
-  if(!confirm('Apagar ficheiro do Storage e remover a entrada?')) return;
+function directDelete(col, key, storagePath) {
+  if (!confirm('Apagar ficheiro do Storage e remover a entrada?')) return;
+  
   showLoading();
-  storage.ref(storagePath).delete().then(()=>{
-    db.ref(`${col}/${key}`).update({fileUrl:null,storagePath:null,fileName:null}).then(()=>{ hideLoading(); refreshFiles(); renderList(col); alert('Apagado.'); });
-  }).catch(err=>{ hideLoading(); alert('Erro: '+err.message); });
+  storage.ref(storagePath).delete().then(() => {
+    db.ref(`${col}/${key}`).update({
+      fileUrl: null,
+      storagePath: null,
+      fileName: null
+    }).then(() => {
+      hideLoading();
+      refreshFiles();
+      renderList(col);
+      alert('Apagado.');
+    });
+  }).catch(err => {
+    hideLoading();
+    alert('Erro: ' + err.message);
+  });
 }
 
-/* ===================== CSV import helpers (for avaliações em massa) ===================== */
-function openBulkImport(){ document.getElementById('csvModal').classList.add('show'); document.getElementById('csvPreview').innerHTML=`<div style="padding:10px"><input type="file" id="csvFile" accept=".csv" /></div>`; document.getElementById('csvFile').addEventListener('change',handleCsvOnce); }
-function handleCsvOnce(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=function(ev){ parseCsvPreview(ev.target.result); }; r.readAsText(f); }
-function parseCsvPreview(text){ const lines=text.split(/\r?\n/).filter(Boolean); const rows=[]; for(let i=0;i<lines.length;i++){ const cols=lines[i].split(','); if(i===0){ /* header check optional */ } else { rows.push({studentName:cols[0]||'', grade:cols[1]||'', comments:cols[2]||''}); } } // show preview
-  const pw=document.getElementById('csvPreview'); pw.innerHTML='<div style="max-height:300px;overflow:auto;border:1px solid #eee;padding:8px;background:#fafafa"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Aluno</th><th>Nota</th><th>Coment</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${r.studentName}</td><td>${r.grade}</td><td>${r.comments}</td></tr>`).join('')+'</tbody></table></div>'; document.getElementById('csvConfirmBtn').onclick=function(){ bulkImport(rows); };
+/* ===================== CSV import ===================== */
+function openBulkImport() {
+  document.getElementById('csvModal').classList.add('show');
+  document.getElementById('csvPreview').innerHTML = `
+    <div style="padding:10px">
+      <input type="file" id="csvFile" accept=".csv" />
+    </div>
+  `;
+  
+  document.getElementById('csvFile').addEventListener('change', handleCsvOnce);
 }
-function cancelCsv(){ document.getElementById('csvModal').classList.remove('show'); document.getElementById('csvPreview').innerHTML=''; }
-function bulkImport(rows){ if(!rows.length) return; showLoading(); let count=0; const pushes=[]; rows.forEach(r=>{ if(!r.studentName) return; const ref=db.ref('avaliacao').push(); pushes.push(ref.set({studentName:r.studentName, grade:r.grade, description:r.comments, timestamp:Date.now()})); }); Promise.all(pushes).then(()=>{ hideLoading(); renderList('avaliacao'); cancelCsv(); alert('Importado '+pushes.length+' avaliações'); }).catch(err=>{ hideLoading(); alert('Erro: '+err.message); }); }
 
-/* ===================== Init: carregar listas e listeners ===================== */
-window.addEventListener('DOMContentLoaded',function(){
-  if(!firebaseInitialized) return;
-  renderList('tpc'); renderList('materia'); renderList('downloads'); renderList('videos'); renderList('avisos'); renderList('avaliacao');
-  db.ref('tpc').on('value',()=>renderList('tpc'));
-  db.ref('materia').on('value',()=>renderList('materia'));
-  db.ref('downloads').on('value',()=>renderList('downloads'));
-  db.ref('videos').on('value',()=>renderList('videos'));
-  db.ref('avisos').on('value',()=>renderList('avisos'));
-  db.ref('avaliacao').on('value',()=>renderList('avaliacao'));
+function handleCsvOnce(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  
+  const r = new FileReader();
+  r.onload = function(ev) {
+    parseCsvPreview(ev.target.result);
+  };
+  r.readAsText(f);
+}
+
+function parseCsvPreview(text) {
+  const lines = text.split(/\r?\n/).filter(Boolean);
+  const rows = [];
+  
+  for (let i = 0; i < lines.length; i++) {
+    const cols = lines[i].split(',');
+    if (i === 0) {
+      // header opcional
+    } else {
+      rows.push({
+        studentName: cols[0] || '',
+        grade: cols[1] || '',
+        comments: cols[2] || ''
+      });
+    }
+  }
+  
+  const pw = document.getElementById('csvPreview');
+  pw.innerHTML = `
+    <div style="max-height:300px;overflow:auto;border:1px solid #eee;padding:8px;background:#fafafa">
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr><th>Aluno</th><th>Nota</th><th>Coment</th></tr>
+        </thead>
+        <tbody>
+          ${rows.map(r => `<tr><td>${r.studentName}</td><td>${r.grade}</td><td>${r.comments}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  
+  document.getElementById('csvConfirmBtn').onclick = function() {
+    bulkImport(rows);
+  };
+}
+
+function cancelCsv() {
+  document.getElementById('csvModal').classList.remove('show');
+  document.getElementById('csvPreview').innerHTML = '';
+}
+
+function bulkImport(rows) {
+  if (!rows.length) return;
+  
+  showLoading();
+  const pushes = [];
+  
+  rows.forEach(r => {
+    if (!r.studentName) return;
+    const ref = db.ref('avaliacao').push();
+    pushes.push(ref.set({
+      studentName: r.studentName,
+      grade: r.grade,
+      description: r.comments,
+      timestamp: Date.now()
+    }));
+  });
+  
+  Promise.all(pushes).then(() => {
+    hideLoading();
+    renderList('avaliacao');
+    cancelCsv();
+    alert('Importado ' + pushes.length + ' avaliações');
+  }).catch(err => {
+    hideLoading();
+    alert('Erro: ' + err.message);
+  });
+}
+
+/* ===================== Init ===================== */
+window.addEventListener('DOMContentLoaded', function() {
+  if (!firebaseInitialized) {
+    alert('Firebase não inicializado. Verifica a configuração.');
+    return;
+  }
+  
+  // Carregar todas as listas
+  renderList('tpc');
+  renderList('materia');
+  renderList('downloads');
+  renderList('videos');
+  renderList('avisos');
+  renderList('avaliacao');
+  
+  // Listeners para updates em tempo real
+  db.ref('tpc').on('value', () => renderList('tpc'));
+  db.ref('materia').on('value', () => renderList('materia'));
+  db.ref('downloads').on('value', () => renderList('downloads'));
+  db.ref('videos').on('value', () => renderList('videos'));
+  db.ref('avisos').on('value', () => renderList('avisos'));
+  db.ref('avaliacao').on('value', () => renderList('avaliacao'));
 });
 
-/* ===================== Extras: keyboard submit login ===================== */
-document.getElementById('passwordInput').addEventListener('keypress',function(e){ if(e.key==='Enter') checkPassword(); });
+/* ===================== Keyboard submit login ===================== */
+document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+  if (e.key === 'Enter') checkPassword();
+});
 </script>
 </body>
 </html>
