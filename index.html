@@ -1,577 +1,426 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Sala do Professor Rui — (com upload de vídeos/imagens e delete seguro)</title>
-    <style>
-        /* Estilos simplificados e responsivos */
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding:20px; }
-        .container { max-width:1200px; margin:0 auto; background:white; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden; }
-        header { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:30px; text-align:center; position:relative; }
-        header h1 { font-size:2.2em; margin-bottom:6px; }
-        nav { background:#f8f9fa; display:flex; justify-content:center; flex-wrap:wrap; border-bottom:3px solid #667eea; }
-        nav button { background:none; border:none; padding:14px 20px; font-size:1.05em; cursor:pointer; color:#333; border-bottom:3px solid transparent; font-weight:600; }
-        nav button.active { background:white; color:#667eea; border-bottom:3px solid #667eea; }
-        .content { padding:30px; }
-        .section { display:none; }
-        .section.active { display:block; animation:fadeIn .35s; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-        h2 { color:#667eea; margin-bottom:16px; font-size:1.6em; border-bottom:3px solid #667eea; padding-bottom:8px; }
-        .item { background:#f8f9fa; padding:14px; margin-bottom:12px; border-radius:10px; border-left:5px solid #667eea; position:relative; }
-        .item h3 { color:#764ba2; margin-bottom:6px; }
-        .date { color:#666; font-size:.9em; font-weight:bold; }
-        .download-btn, .video-link, .small-btn { display:inline-block; background:#667eea; color:white; padding:8px 12px; text-decoration:none; border-radius:6px; margin-top:8px; border:none; cursor:pointer; }
-        .admin-controls { display:none; margin-bottom:16px; }
-        .admin-controls.show { display:block; }
-        .add-btn { background:#28a745; color:white; padding:10px 18px; border-radius:10px; border:none; cursor:pointer; }
-        .item-controls { position:absolute; top:10px; right:10px; display:none; }
-        .admin-controls.show ~ div .item-controls { display:block; }
-        .edit-btn { background:#ffc107; color:#333; padding:6px 8px; border-radius:6px; border:none; cursor:pointer; margin-left:6px; }
-        .delete-btn { background:#dc3545; color:white; padding:6px 8px; border-radius:6px; border:none; cursor:pointer; margin-left:6px; }
-        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-        .modal.show { display:flex; }
-        .modal-content { background:white; padding:22px; border-radius:12px; width:90%; max-width:700px; max-height:90vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.25); }
-        .form-group { margin-bottom:14px; }
-        .form-group label { display:block; margin-bottom:6px; font-weight:bold; }
-        .form-group input, .form-group textarea { width:100%; padding:10px; border:2px solid #ddd; border-radius:6px; font-size:1em; }
-        .file-upload { border:2px dashed #667eea; padding:12px; text-align:center; border-radius:6px; cursor:pointer; }
-        .upload-progress { display:none; margin-top:8px; }
-        .progress-bar { width:100%; height:14px; background:#e9ecef; border-radius:8px; overflow:hidden; }
-        .progress-fill { height:100%; background:#28a745; width:0%; transition:width .3s; }
-        .modal-buttons { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
-        .btn-save { background:#28a745; color:white; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; }
-        .btn-cancel { background:#6c757d; color:white; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; }
-        .loading-overlay { position:fixed; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index:9999; }
-        .loading-overlay.show { display:flex; }
-        .loading-spinner { background:white; padding:20px; border-radius:10px; text-align:center; }
-        @media (max-width:768px) { header h1{font-size:1.4em;} .content{padding:16px;} }
-        .preview-media { margin-top:8px; max-width:100%; border-radius:8px; box-shadow:0 6px 14px rgba(0,0,0,0.08); }
-    </style>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Sala do Professor Rui — Melhorada</title>
+<style>
+/* Simples, limpo e comentado para facilitar edições futuras */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:18px;color:#222}
+.container{max-width:1100px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.15)}
+header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:22px;text-align:center;position:relative}
+header h1{font-size:1.6rem;margin-bottom:6px}
+header p{opacity:0.95}
+.admin-toggle{position:absolute;right:18px;top:18px;background:rgba(255,255,255,0.15);border:2px solid #fff;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer}
+nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#f8f9fa;padding:8px;border-bottom:3px solid #667eea}
+nav button{background:none;border:0;padding:10px 14px;cursor:pointer;font-weight:600;color:#333;border-bottom:3px solid transparent}
+nav button.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea}
+.content{padding:22px}
+.section{display:none}
+.section.active{display:block}
+.card{background:#f8f9fa;padding:14px;border-radius:10px;margin-bottom:12px;border-left:5px solid #667eea;position:relative}
+.card h3{color:#764ba2;margin-bottom:6px}
+.small{font-size:.9rem;color:#555}
+.controls{position:absolute;top:10px;right:10px;display:none}
+.admin-controls.show ~ .card .controls{display:block}
+.btn{background:#667eea;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer}
+.btn.green{background:#28a745}
+.btn.warn{background:#ffc107;color:#222}
+.btn.red{background:#dc3545}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:999}
+.modal.show{display:flex}
+.modal-inner{background:#fff;padding:18px;border-radius:12px;width:95%;max-width:720px;max-height:90vh;overflow:auto}
+.form-row{margin-bottom:12px}
+label{display:block;margin-bottom:6px;font-weight:700}
+input[type=text],input[type=url],textarea,input[type=password]{width:100%;padding:10px;border-radius:8px;border:2px solid #eee;font-size:1rem}
+.file-upload{border:2px dashed #667eea;padding:12px;text-align:center;border-radius:8px;cursor:pointer}
+.preview{margin-top:10px}
+.preview img, .preview video{max-width:100%;border-radius:8px;display:block}
+.meta{font-size:.85rem;color:#666;margin-top:6px}
+.footer{padding:12px;text-align:center;color:#666}
+.loading{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9999}
+.loading.show{display:flex}
+.loading .box{background:#fff;padding:18px;border-radius:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.col{flex:1}
+@media(max-width:600px){header h1{font-size:1.1rem}}
+</style>
 </head>
 <body>
-    <!-- Loading overlay -->
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-spinner"><div style="border:5px solid #f3f3f3;border-top:5px solid #667eea;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 12px;"></div><p>A carregar...</p></div>
+<div class="loading" id="loading"><div class="box"><div style="width:40px;height:40px;border-radius:50%;border:5px solid #eee;border-top:5px solid #667eea;animation:spin 1s linear infinite;margin:0 auto 10px"></div><div>A carregar...</div></div></div>
+
+<div class="container">
+<header>
+  <h1>🎓 Sala do Professor Rui — Melhorada</h1>
+  <p>Gestão de TPC, Materiais, Downloads, Vídeos, Avisos e Avaliação.</p>
+  <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">👨‍🏫 Modo Professor</button>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showSection('tpc')">📚 Trabalhos</button>
+  <button class="nav-btn" onclick="showSection('materia')">📖 Matéria</button>
+  <button class="nav-btn" onclick="showSection('downloads')">📥 Downloads</button>
+  <button class="nav-btn" onclick="showSection('videos')">🎬 Vídeos</button>
+  <button class="nav-btn" onclick="showSection('avisos')">📣 Avisos</button>
+  <button class="nav-btn" onclick="showSection('avaliacao')">📝 Avaliação</button>
+  <button class="nav-btn" onclick="showSection('files')">🗂️ Ficheiros</button>
+</nav>
+
+<div class="content">
+  <!-- Sections -->
+  <div id="tpc" class="section active">
+    <h2>📚 Trabalhos de Casa</h2>
+    <div class="admin-controls" id="tpcAdmin"><button class="btn green" onclick="openAddModal('tpc')">➕ Adicionar TPC</button></div>
+    <div id="tpcList"></div>
+  </div>
+
+  <div id="materia" class="section">
+    <h2>📖 Matéria</h2>
+    <div class="admin-controls" id="materiaAdmin"><button class="btn green" onclick="openAddModal('materia')">➕ Adicionar Matéria</button></div>
+    <div id="materiaList"></div>
+  </div>
+
+  <div id="downloads" class="section">
+    <h2>📥 Downloads</h2>
+    <div class="admin-controls" id="downloadsAdmin"><button class="btn green" onclick="openAddModal('downloads')">➕ Adicionar Download</button></div>
+    <div id="downloadsList"></div>
+  </div>
+
+  <div id="videos" class="section">
+    <h2>🎬 Vídeos</h2>
+    <div class="admin-controls" id="videosAdmin"><button class="btn green" onclick="openAddModal('videos')">➕ Adicionar Vídeo</button></div>
+    <div id="videosList"></div>
+  </div>
+
+  <div id="avisos" class="section">
+    <h2>📣 Avisos</h2>
+    <div class="admin-controls" id="avisosAdmin"><button class="btn green" onclick="openAddModal('avisos')">➕ Publicar Aviso</button></div>
+    <div id="avisosList"></div>
+  </div>
+
+  <div id="avaliacao" class="section">
+    <h2>📝 Avaliação</h2>
+    <div class="admin-controls" id="avaliacaoAdmin">
+      <button class="btn green" onclick="openAddModal('avaliacao')">➕ Adicionar Avaliação</button>
+      <button class="btn" onclick="openBulkImport()">📥 Importar CSV</button>
+    </div>
+    <div id="avaliacaoList"></div>
+  </div>
+
+  <div id="files" class="section">
+    <h2>🗂️ Ficheiros no Storage</h2>
+    <p class="small">Lista dos ficheiros com storagePath — útil para apagar manualmente ou substituir.</p>
+    <div class="admin-controls" id="filesAdmin"><button class="btn" onclick="refreshFiles()">🔄 Atualizar</button></div>
+    <div id="filesList"></div>
+  </div>
+
+</div>
+
+<footer class="footer">Desenvolvido para ser simples — podes editar este código no GitHub.</footer>
+</div>
+
+<!-- Modal: add/edit -->
+<div class="modal" id="editModal"><div class="modal-inner">
+  <h3 id="modalTitle">Adicionar</h3>
+  <form id="editForm">
+    <div class="form-row">
+      <label>Título</label>
+      <input type="text" id="itemTitle" required />
+    </div>
+    <div class="form-row" id="dateGroup" style="display:none">
+      <label>Data</label>
+      <input type="text" id="itemDate" placeholder="Ex: Para dia 25 de novembro" />
+    </div>
+    <div class="form-row">
+      <label>Descrição</label>
+      <textarea id="itemDescription" rows="3"></textarea>
     </div>
 
-    <div class="container">
-        <header>
-            <h1>🎓 Sala do Professor Rui</h1>
-            <p>Portal — TPC, Materiais, Downloads, Vídeos, Avisos e Avaliação</p>
-            <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">👨‍🏫 Modo Professor</button>
-        </header>
-
-        <nav>
-            <button onclick="showSection('tpc')" class="nav-btn active">📚 Trabalhos de Casa</button>
-            <button onclick="showSection('materia')" class="nav-btn">📖 Matéria</button>
-            <button onclick="showSection('downloads')" class="nav-btn">📥 Downloads</button>
-            <button onclick="showSection('videos')" class="nav-btn">🎬 Vídeos</button>
-            <button onclick="showSection('avisos')" class="nav-btn">📣 Avisos</button>
-            <button onclick="showSection('avaliacao')" class="nav-btn">📝 Avaliação</button>
-        </nav>
-
-        <div class="content">
-            <div id="tpc" class="section active">
-                <h2>📚 Trabalhos de Casa</h2>
-                <div class="admin-controls" id="tpcAdmin"><button class="add-btn" onclick="openAddModal('tpc')">➕ Adicionar TPC</button></div>
-                <div id="tpcList"></div>
-            </div>
-
-            <div id="materia" class="section">
-                <h2>📖 Matéria Atual</h2>
-                <div class="admin-controls" id="materiaAdmin"><button class="add-btn" onclick="openAddModal('materia')">➕ Adicionar Matéria</button></div>
-                <div id="materiaList"></div>
-            </div>
-
-            <div id="downloads" class="section">
-                <h2>📥 Downloads</h2>
-                <div class="admin-controls" id="downloadsAdmin"><button class="add-btn" onclick="openAddModal('downloads')">➕ Adicionar Download</button></div>
-                <div id="downloadsList"></div>
-            </div>
-
-            <div id="videos" class="section">
-                <h2>🎬 Vídeos</h2>
-                <div class="admin-controls" id="videosAdmin"><button class="add-btn" onclick="openAddModal('videos')">➕ Adicionar Vídeo</button></div>
-                <div id="videosList"></div>
-            </div>
-
-            <div id="avisos" class="section">
-                <h2>📣 Avisos</h2>
-                <div class="admin-controls" id="avisosAdmin"><button class="add-btn" onclick="openAddModal('avisos')">➕ Publicar Aviso</button></div>
-                <div id="avisosList"></div>
-            </div>
-
-            <div id="avaliacao" class="section">
-                <h2>📝 Avaliação</h2>
-                <div class="admin-controls" id="avaliacaoAdmin"><button class="add-btn" onclick="openAddModal('avaliacao')">➕ Adicionar Avaliação</button></div>
-                <div id="avaliacaoList"></div>
-            </div>
-        </div>
+    <div class="form-row" id="urlGroup" style="display:none">
+      <label>URL do vídeo (opcional)</label>
+      <input type="url" id="itemUrl" placeholder="https://..." />
     </div>
 
-    <!-- Modal: adicionar / editar -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <h3 id="modalTitle">Adicionar Item</h3>
-            <form id="editForm">
-                <div class="form-group">
-                    <label for="itemTitle">Título:</label>
-                    <input type="text" id="itemTitle" required />
-                </div>
-
-                <div class="form-group" id="dateGroup" style="display:none;">
-                    <label for="itemDate">Data:</label>
-                    <input type="text" id="itemDate" placeholder="Ex: Para dia 25 de novembro" />
-                </div>
-
-                <div class="form-group">
-                    <label for="itemDescription">Descrição:</label>
-                    <textarea id="itemDescription" required></textarea>
-                </div>
-
-                <div class="form-group" id="urlGroup" style="display:none;">
-                    <label for="itemUrl">URL do Vídeo (opcional):</label>
-                    <input type="url" id="itemUrl" placeholder="https://..." />
-                </div>
-
-                <div class="form-group" id="fileGroup" style="display:none;">
-                    <label>Ficheiro (PDF/Imagem/Vídeo):</label>
-                    <div class="file-upload" onclick="document.getElementById('fileInput').click()">
-                        <p>📁 Clica para escolher um ficheiro</p>
-                        <p style="font-size:.9em;color:#666;">PDF, DOC, IMAGEM (jpg/png), VÍDEO (mp4, webm). Limite 20MB por omissão.</p>
-                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/*,video/*" />
-                    </div>
-                    <p id="fileName" style="margin-top:8px;color:#667eea;"></p>
-                    <!-- Pré-visualização (imagem ou vídeo) -->
-                    <div id="previewContainer" style="margin-top:8px;"></div>
-
-                    <div class="upload-progress" id="uploadProgress">
-                        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-                        <p id="progressText" style="text-align:center;margin-top:6px;"></p>
-                    </div>
-                </div>
-
-                <div class="form-group" id="studentGroup" style="display:none;">
-                    <label for="studentName">Aluno(a):</label>
-                    <input type="text" id="studentName" placeholder="Nome do aluno" />
-                </div>
-
-                <div class="form-group" id="gradeGroup" style="display:none;">
-                    <label for="studentGrade">Nota / Avaliação:</label>
-                    <input type="text" id="studentGrade" placeholder="Ex: 16/20 ou A" />
-                </div>
-
-                <div class="modal-buttons">
-                    <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn-save" id="saveBtn">Guardar</button>
-                </div>
-            </form>
-        </div>
+    <div class="form-row" id="fileGroup" style="display:none">
+      <label>Ficheiro (PDF / Imagem / Vídeo)</label>
+      <div class="file-upload" onclick="document.getElementById('fileInput').click()">📁 Clica para escolher</div>
+      <input type="file" id="fileInput" accept=".pdf,.doc,.docx,image/*,video/*" style="display:none" />
+      <div id="fileMeta" class="meta"></div>
+      <div id="preview" class="preview"></div>
+      <div id="uploadProgress" style="display:none;margin-top:10px"><div class="progress-bar"><div id="progressFill" class="progress-fill" style="height:14px;background:#28a745;width:0%"></div></div><div id="progressText" class="meta"></div></div>
+      <div class="row" style="margin-top:8px">
+        <button type="button" class="btn warn" onclick="deleteOnlyFile()">🗑️ Apagar ficheiro (manter entrada)</button>
+        <button type="button" class="btn" onclick="replaceFile()">🔁 Substituir ficheiro</button>
+      </div>
     </div>
 
-    <!-- Login modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content" style="max-width:420px;text-align:center;">
-            <h3>🔐 Modo Professor</h3>
-            <p>Introduz a password para aceder ao painel de administração:</p>
-            <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:12px;border:2px solid #667eea;border-radius:8px;margin-top:12px;" />
-            <button onclick="checkPassword()" style="margin-top:12px;padding:10px 14px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;">Entrar</button>
-            <p id="errorMessage" style="color:#dc3545;margin-top:10px;"></p>
-        </div>
+    <div class="form-row" id="studentGroup" style="display:none">
+      <label>Aluno(a)</label>
+      <input type="text" id="studentName" placeholder="Nome do aluno" />
+    </div>
+    <div class="form-row" id="gradeGroup" style="display:none">
+      <label>Nota</label>
+      <input type="text" id="studentGrade" placeholder="Ex: 16/20" />
     </div>
 
-    <!-- Firebase libs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+    <div style="text-align:right;margin-top:8px">
+      <button type="button" class="btn btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button type="submit" class="btn green" id="saveBtn">Guardar</button>
+    </div>
+  </form>
+</div></div>
 
-    <script>
-        /* ===================== FIREBASE CONFIG (mantive a tua config) ===================== */
-        const firebaseConfig = {
-            apiKey: "AIzaSyBg5GJhEOGbtp5mvmLj2pBSM_dAiSpO0j8",
-            authDomain: "ludus-virtualis.firebaseapp.com",
-            databaseURL: "https://ludus-virtualis-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "ludus-virtualis",
-            storageBucket: "ludus-virtualis.firebasestorage.app",
-            messagingSenderId: "175619516992",
-            appId: "1:175619516992:web:11b91ef2f6daeedba68da5",
-            measurementId: "G-9Y9LL26S7X"
-        };
+<!-- Modal: login -->
+<div class="modal" id="loginModal"><div class="modal-inner" style="max-width:420px">
+  <h3>🔐 Modo Professor</h3>
+  <p>Introduz a password:</p>
+  <input type="password" id="passwordInput" style="padding:10px;border-radius:8px;border:2px solid #667eea;width:100%" />
+  <div style="text-align:right;margin-top:10px"><button class="btn" onclick="checkPassword()">Entrar</button></div>
+  <div id="loginError" class="meta"></div>
+</div></div>
 
-        let firebaseInitialized = false;
-        let db = null;
-        let storage = null;
+<!-- Modal: CSV import preview -->
+<div class="modal" id="csvModal"><div class="modal-inner">
+  <h3>Importar CSV — pré-visualizar</h3>
+  <p class="small">Formato: studentName,grade,comments</p>
+  <div id="csvPreview"></div>
+  <div style="text-align:right;margin-top:10px">
+    <button class="btn" onclick="cancelCsv()">Cancelar</button>
+    <button class="btn green" id="csvConfirmBtn">Confirmar Importação</button>
+  </div>
+</div></div>
 
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-            storage = firebase.storage();
-            firebaseInitialized = true;
-            console.log("✅ Firebase inicializado");
-        } catch (err) {
-            console.error("Erro Firebase:", err);
-        }
+<script>
+/* ===================== Config Firebase (mantenha a tua config) ===================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBg5GJhEOGbtp5mvmLj2pBSM_dAiSpO0j8",
+  authDomain: "ludus-virtualis.firebaseapp.com",
+  databaseURL: "https://ludus-virtualis-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "ludus-virtualis",
+  storageBucket: "ludus-virtualis.firebasestorage.app",
+  messagingSenderId: "175619516992",
+  appId: "1:175619516992:web:11b91ef2f6daeedba68da5",
+  measurementId: "G-9Y9LL26S7X"
+};
+let firebaseInitialized=false, db=null, storage=null;
+try{firebase.initializeApp(firebaseConfig); db=firebase.database(); storage=firebase.storage(); firebaseInitialized=true; console.log('Firebase ready');}catch(e){console.error(e)}
 
-        /* ===================== VARS GLOBAIS ===================== */
-        const DEFAULT_PASSWORD = 'professor123'; // altera depois para maior segurança
-        let isAdminMode = false;
-        let currentEditType = '';
-        let currentEditKey = null;
-        let uploadedFileURL = null;
-        let uploadedFilePath = null;
+/* ===================== Vars globais simples ===================== */
+const DEFAULT_PASSWORD = 'professor123';
+let isAdminMode = false;
+let currentEditType = '';
+let currentEditKey = null;
+let uploadedFileURL = null;
+let uploadedFilePath = null;
+let uploadedFileName = null;
 
-        /* ===================== UTILITÁRIOS UI ===================== */
-        function showLoading(){ document.getElementById('loadingOverlay').classList.add('show'); }
-        function hideLoading(){ document.getElementById('loadingOverlay').classList.remove('show'); }
+/* ===================== UI util ===================== */
+function showLoading(){document.getElementById('loading').classList.add('show');}
+function hideLoading(){document.getElementById('loading').classList.remove('show');}
+function showSection(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');Array.from(document.querySelectorAll('.nav-btn')).find(b=>b.getAttribute('onclick')===`showSection('${id}')`).classList.add('active')}
 
-        function showSection(id){
-            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            const el = document.getElementById(id);
-            if (el) el.classList.add('active');
-            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') === `showSection('${id}')`);
-            if (btn) btn.classList.add('active');
-        }
+/* ===================== Admin toggle ===================== */
+function toggleAdmin(){document.getElementById('loginModal').classList.add('show');}
+function checkPassword(){const v=document.getElementById('passwordInput').value; if(v===DEFAULT_PASSWORD){isAdminMode=true;document.getElementById('loginModal').classList.remove('show');document.querySelectorAll('.admin-controls').forEach(el=>el.classList.add('show'));document.getElementById('passwordInput').value='';document.getElementById('loginError').textContent=''}else{document.getElementById('loginError').textContent='Senha incorreta'}}
 
-        function toggleAdmin(){
-            if (!isAdminMode) {
-                document.getElementById('loginModal').classList.add('show');
-            } else {
-                isAdminMode = false;
-                document.getElementById('adminToggle').textContent = '👨‍🏫 Modo Professor';
-                document.querySelectorAll('.admin-controls').forEach(el => el.classList.remove('show'));
-            }
-        }
+/* ===================== Render genérico ===================== */
+function renderList(type){
+  const el=document.getElementById(type+'List'); if(!el) return;
+  if(!firebaseInitialized){ el.innerHTML='<div class="card">Firebase não configurado</div>'; return; }
+  showLoading();
+  db.ref(type).once('value').then(snapshot=>{
+    hideLoading(); el.innerHTML=''; const data=snapshot.val(); if(!data){ el.innerHTML='<div class="card small">Ainda não há itens.</div>'; return; }
+    Object.keys(data).reverse().forEach(key=>{ const item=data[key]; const div=document.createElement('div'); div.className='card';
+      let ctrl=''; if(isAdminMode) ctrl=`<div class="controls"><button class="btn warn" onclick="editItem('${type}','${key}')">✏️</button><button class="btn red" onclick="deleteItem('${type}','${key}')">🗑️</button></div>`;
+      let html=`${ctrl}<h3>${item.title||''}</h3>`;
+      if(item.date) html+=`<div class="small">📅 ${item.date}</div>`;
+      if(item.studentName) html+=`<div class="small"><strong>Aluno:</strong> ${item.studentName}</div>`;
+      if(item.grade) html+=`<div class="small"><strong>Nota:</strong> ${item.grade}</div>`;
+      if(item.description) html+=`<div class="small">${item.description}</div>`;
+      if(item.fileUrl){
+        const name=item.fileName||item.fileUrl;
+        const isImage=/\.(jpe?g|png|gif|webp|bmp)$/i.test(name);
+        const isVideo=/\.(mp4|webm|ogg|mov)$/i.test(name) || (item.fileUrl && item.fileUrl.includes('video'));
+        if(isImage) html+=`<div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" style="max-width:300px;border-radius:8px"></a></div><div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">🔍 Abrir imagem</a></div>`;
+        else if(isVideo) html+=`<div style="margin-top:8px"><video controls style="max-width:420px"><source src="${item.fileUrl}"></video></div><div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">▶ Abrir vídeo</a></div>`;
+        else html+=`<div style="margin-top:8px"><a href="${item.fileUrl}" target="_blank" class="btn">📄 Descarregar</a></div>`;
+        // show storagePath in admin
+        if(isAdminMode) html+=`<div class="meta">storagePath: ${item.storagePath||'<i>n/a</i>'} | fileName: ${item.fileName||'<i>n/a</i>'}</div>`;
+      }
+      if(item.url && !item.fileUrl) html+=`<div style="margin-top:8px"><a href="${item.url}" target="_blank" class="btn">▶ Ver link</a></div>`;
+      div.innerHTML=html; el.appendChild(div);
+    });
+  }).catch(err=>{ hideLoading(); el.innerHTML='<div class="card small">Erro ao carregar</div>'; console.error(err);});
+}
 
-        function checkPassword(){
-            const input = document.getElementById('passwordInput').value;
-            if (input === DEFAULT_PASSWORD) {
-                isAdminMode = true;
-                document.getElementById('loginModal').classList.remove('show');
-                document.getElementById('adminToggle').textContent = '✅ Modo Edição';
-                document.querySelectorAll('.admin-controls').forEach(el => el.classList.add('show'));
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('errorMessage').textContent = '';
-            } else {
-                document.getElementById('errorMessage').textContent = '❌ Password incorreta!';
-            }
-        }
+/* ===================== Open modal for add/edit ===================== */
+function openAddModal(type){ currentEditType=type; currentEditKey=null; uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null;
+  document.getElementById('modalTitle').textContent = 'Adicionar ' + type;
+  document.getElementById('itemTitle').value=''; document.getElementById('itemDate').value=''; document.getElementById('itemDescription').value=''; document.getElementById('itemUrl').value='';
+  document.getElementById('fileInput').value=''; document.getElementById('fileMeta').textContent=''; document.getElementById('preview').innerHTML='';
+  document.getElementById('studentName').value=''; document.getElementById('studentGrade').value='';
+  document.getElementById('dateGroup').style.display = type==='tpc' ? 'block':'none';
+  document.getElementById('urlGroup').style.display = type==='videos' ? 'block':'none';
+  document.getElementById('fileGroup').style.display = (type==='downloads' || type==='videos' || type==='avaliacao') ? 'block':'none';
+  document.getElementById('studentGroup').style.display = type==='avaliacao' ? 'block':'none';
+  document.getElementById('gradeGroup').style.display = type==='avaliacao' ? 'block':'none';
+  document.getElementById('editModal').classList.add('show');
+}
 
-        /* ===================== RENDERIZA LISTAS ===================== */
-        function renderList(type) {
-            const listEl = document.getElementById(`${type}List`);
-            if (!listEl) return;
-            if (!firebaseInitialized) { listEl.innerHTML = '<div style="padding:20px;color:#666;">Firebase não configurado</div>'; return; }
-            showLoading();
-            db.ref(type).once('value').then(snapshot => {
-                hideLoading();
-                const data = snapshot.val();
-                listEl.innerHTML = '';
-                if (!data) { listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">Ainda não há itens.</div>'; return; }
-                Object.keys(data).forEach(key => {
-                    const item = data[key];
-                    const div = document.createElement('div'); div.className = 'item';
-                    let controls = '';
-                    if (isAdminMode) {
-                        controls = `<div class="item-controls">
-                            <button class="edit-btn" onclick="editItem('${type}','${key}')">✏️</button>
-                            <button class="delete-btn" onclick="deleteItem('${type}','${key}')">🗑️</button>
-                        </div>`;
-                    }
-                    let html = `${controls}<h3>${item.title || ''}</h3>`;
-                    if (item.date) html += `<p class="date">📅 ${item.date}</p>`;
-                    if (item.studentName) html += `<p><strong>Aluno:</strong> ${item.studentName}</p>`;
-                    if (item.grade) html += `<p><strong>Nota:</strong> ${item.grade}</p>`;
-                    if (item.description) html += `<p>${item.description}</p>`;
+/* ===================== Edit item ===================== */
+function editItem(type,key){ currentEditType=type; currentEditKey=key; showLoading();
+  db.ref(`${type}/${key}`).once('value').then(snap=>{ hideLoading(); const item=snap.val()||{};
+    document.getElementById('modalTitle').textContent='Editar ' + type;
+    document.getElementById('itemTitle').value=item.title||'';
+    document.getElementById('itemDate').value=item.date||'';
+    document.getElementById('itemDescription').value=item.description||'';
+    document.getElementById('itemUrl').value=item.url||'';
+    document.getElementById('fileMeta').textContent = item.fileName?('Ficheiro atual: '+item.fileName):'';
+    document.getElementById('preview').innerHTML='';
+    uploadedFileURL=item.fileUrl||null; uploadedFilePath=item.storagePath||null; uploadedFileName=item.fileName||null;
+    if(item.fileUrl){ if(item.fileUrl.match(/\.(jpe?g|png|gif|webp|bmp)$/i)) document.getElementById('preview').innerHTML=`<a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" style="max-width:320px;border-radius:8px"></a>`;
+      else if(item.fileUrl.match(/\.(mp4|webm|ogg|mov)$/i) || (item.fileUrl.includes('video'))) document.getElementById('preview').innerHTML=`<video controls style="max-width:420px"><source src="${item.fileUrl}"></video>`;
+      else document.getElementById('preview').innerHTML=`<a href="${item.fileUrl}" target="_blank" class="btn">📄 Abrir ficheiro existente</a>`;}
+    document.getElementById('dateGroup').style.display = type==='tpc' ? 'block':'none';
+    document.getElementById('urlGroup').style.display = type==='videos' ? 'block':'none';
+    document.getElementById('fileGroup').style.display = (type==='downloads' || type==='videos' || type==='avaliacao') ? 'block':'none';
+    document.getElementById('studentGroup').style.display = type==='avaliacao' ? 'block':'none';
+    document.getElementById('gradeGroup').style.display = type==='avaliacao' ? 'block':'none';
+    document.getElementById('editModal').classList.add('show');
+  }).catch(err=>{ hideLoading(); alert('Erro: '+err.message) });}
 
-                    // Mostrar ficheiro (imagem, vídeo, pdf)
-                    if (item.fileUrl) {
-                        const name = item.fileName || item.fileUrl || '';
-                        const isImage = /\.(jpe?g|png|gif|webp|bmp)$/i.test(name);
-                        const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(name) || (item.fileUrl && item.fileUrl.includes('video'));
-                        if (isImage) {
-                            html += `<p><a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" alt="${item.title || ''}" style="max-width:280px;border-radius:8px;display:block;margin-bottom:8px;" /></a></p>`;
-                            html += `<p><a href="${item.fileUrl}" target="_blank" class="download-btn">🔍 Abrir imagem</a></p>`;
-                        } else if (isVideo) {
-                            html += `<p><video controls class="preview-media" style="max-width:420px;display:block;margin-bottom:8px;"><source src="${item.fileUrl}"></video></p>`;
-                            html += `<p><a href="${item.fileUrl}" target="_blank" class="download-btn">▶ Abrir vídeo</a></p>`;
-                        } else {
-                            html += `<p><a href="${item.fileUrl}" target="_blank" class="download-btn">📄 Descarregar</a></p>`;
-                        }
-                    }
+/* ===================== Upload file (save URL + storagePath) ===================== */
+function uploadFile(file){
+  const max=40*1024*1024; // 40MB
+  const saveBtn=document.getElementById('saveBtn');
+  saveBtn.disabled=true;
+  if(file.size>max){ alert('Ficheiro demasiado grande. Limite: 40MB'); document.getElementById('fileInput').value=''; saveBtn.disabled=false; return; }
+  const folder=(currentEditType==='videos')?'videos':'downloads';
+  const name = Date.now()+'_'+file.name;
+  const ref = storage.ref(`${folder}/${name}`);
+  const task = ref.put(file);
+  document.getElementById('uploadProgress').style.display='block';
+  task.on('state_changed',snap=>{ const p=(snap.bytesTransferred/snap.totalBytes)*100; document.getElementById('progressFill').style.width=p+'%'; document.getElementById('progressText').textContent=Math.round(p)+'%'; }, err=>{ alert('Erro no upload: '+err.message); document.getElementById('uploadProgress').style.display='none'; saveBtn.disabled=false; }, ()=>{
+    task.snapshot.ref.getDownloadURL().then(url=>{ uploadedFileURL=url; uploadedFilePath=task.snapshot.ref.fullPath; uploadedFileName=file.name; document.getElementById('progressText').textContent='✅ Completo'; saveBtn.disabled=false; setTimeout(()=>document.getElementById('uploadProgress').style.display='none',900); // preview
+      const preview=document.getElementById('preview'); preview.innerHTML=''; if(file.type.startsWith('image/')) preview.innerHTML=`<a href="${uploadedFileURL}" target="_blank"><img src="${uploadedFileURL}" style="max-width:320px;border-radius:8px"></a>`; else if(file.type.startsWith('video/')) preview.innerHTML=`<video controls style="max-width:420px"><source src="${uploadedFileURL}"></video>`; else preview.innerHTML=`<a href="${uploadedFileURL}" target="_blank" class="btn">📄 Abrir ficheiro</a>`; });
+  });
+}
 
-                    // Se for vídeo via URL (p.ex. YouTube) e não tem fileUrl
-                    if (item.url && !item.fileUrl) {
-                        html += `<p><a href="${item.url}" target="_blank" class="video-link">▶️ Ver (link)</a></p>`;
-                    }
+/* file input listener */
+document.getElementById('fileInput').addEventListener('change',function(e){ const file=e.target.files[0]; if(!file) return; document.getElementById('fileMeta').textContent='📎 '+file.name; document.getElementById('preview').innerHTML=''; // local preview
+  if(file.type.startsWith('image/')){ const r=new FileReader(); r.onload=function(ev){ document.getElementById('preview').innerHTML=`<img src="${ev.target.result}" style="max-width:320px;border-radius:8px">`; }; r.readAsDataURL(file); }
+  else if(file.type.startsWith('video/')){ const r=new FileReader(); r.onload=function(ev){ document.getElementById('preview').innerHTML=`<video controls style="max-width:420px"><source src="${ev.target.result}"></video>`; }; r.readAsDataURL(file); }
+  uploadFile(file);
+});
 
-                    div.innerHTML = html;
-                    listEl.appendChild(div);
-                });
-            }).catch(err => {
-                hideLoading();
-                listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;">Erro ao carregar</div>';
-            });
-        }
+/* ===================== Delete only file from storage (keep DB entry) ===================== */
+function deleteOnlyFile(){
+  if(!confirm('Apagar apenas o ficheiro associado ao item? (A entrada permanece)')) return;
+  if(!currentEditKey){ // new item not saved yet: just clear preview and reset upload vars
+    if(uploadedFilePath){ // if file uploaded, try delete
+      storage.ref(uploadedFilePath).delete().then(()=>{ uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null; document.getElementById('preview').innerHTML=''; document.getElementById('fileMeta').textContent=''; alert('Ficheiro apagado do Storage.'); }).catch(()=>{ uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null; document.getElementById('preview').innerHTML=''; document.getElementById('fileMeta').textContent=''; alert('Não foi possível apagar do Storage (ou já removido). Limpei a preview.'); });
+    } else { document.getElementById('preview').innerHTML=''; document.getElementById('fileMeta').textContent=''; uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null; }
+    return;
+  }
+  showLoading();
+  db.ref(`${currentEditType}/${currentEditKey}`).once('value').then(snap=>{
+    const item=snap.val(); const sp=item && item.storagePath?item.storagePath:null;
+    if(!sp){ hideLoading(); alert('Item não tem ficheiro associado.'); return; }
+    storage.ref(sp).delete().then(()=>{ // remove storage then clear DB fields for that item (keep the rest)
+      const updates={ fileUrl:null, storagePath:null, fileName:null };
+      db.ref(`${currentEditType}/${currentEditKey}`).update(updates).then(()=>{ hideLoading(); renderList(currentEditType); document.getElementById('preview').innerHTML=''; document.getElementById('fileMeta').textContent=''; uploadedFileURL=null; uploadedFilePath=null; uploadedFileName=null; alert('Ficheiro apagado e entrada atualizada.'); }).catch(e=>{ hideLoading(); alert('Erro a atualizar DB: '+e.message); });
+    }).catch(e=>{ hideLoading(); if(confirm('Erro ao apagar no Storage. Queres apenas remover referência no site?')){ db.ref(`${currentEditType}/${currentEditKey}`).update({fileUrl:null,storagePath:null,fileName:null}).then(()=>{ renderList(currentEditType); alert('Referência removida.'); }).catch(err=>alert('Erro: '+err.message)); } });
+  }).catch(e=>{ hideLoading(); alert('Erro a ler item: '+e.message); });
+}
 
-        /* ===================== ABRIR / FECHAR MODAL ===================== */
-        function openAddModal(type) {
-            currentEditType = type;
-            currentEditKey = null;
-            uploadedFileURL = null;
-            uploadedFilePath = null;
-            document.getElementById('modalTitle').textContent = 'Adicionar';
-            document.getElementById('itemTitle').value = '';
-            document.getElementById('itemDate').value = '';
-            document.getElementById('itemDescription').value = '';
-            document.getElementById('itemUrl').value = '';
-            document.getElementById('fileInput').value = '';
-            document.getElementById('fileName').textContent = '';
-            document.getElementById('previewContainer').innerHTML = '';
-            document.getElementById('studentName').value = '';
-            document.getElementById('studentGrade').value = '';
+/* ===================== Replace file: allows selecting new file to replace existing */
+function replaceFile(){
+  document.getElementById('fileInput').click();
+}
 
-            document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
-            document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
-            document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'avaliacao' || type === 'videos') ? 'block' : 'none';
-            document.getElementById('studentGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
-            document.getElementById('gradeGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+/* ===================== Submit form: save item to DB ===================== */
+document.getElementById('editForm').addEventListener('submit',function(e){ e.preventDefault();
+  const title=document.getElementById('itemTitle').value.trim(); const description=document.getElementById('itemDescription').value.trim();
+  if(!title){ alert('Escreve um título'); return; }
+  const obj={ title, description, timestamp:Date.now() };
+  if(currentEditType==='tpc') obj.date=document.getElementById('itemDate').value;
+  if(currentEditType==='videos'){
+    const url=document.getElementById('itemUrl').value.trim();
+    if(url) obj.url=url;
+  }
+  if(currentEditType==='downloads' || currentEditType==='videos' || currentEditType==='avaliacao'){
+    if(uploadedFileURL){ obj.fileUrl=uploadedFileURL; obj.fileName=uploadedFileName || null; obj.storagePath=uploadedFilePath || null; }
+    else if(!currentEditKey && (currentEditType==='downloads' || currentEditType==='videos')){ alert('Carrega um ficheiro!'); return; }
+  }
+  if(currentEditType==='avaliacao'){ obj.studentName=document.getElementById('studentName').value || null; obj.grade=document.getElementById('studentGrade').value || null; }
+  showLoading();
+  const ref = currentEditKey ? db.ref(`${currentEditType}/${currentEditKey}`) : db.ref(currentEditType).push();
+  ref.set(obj).then(()=>{ hideLoading(); renderList(currentEditType); closeModal(); alert('Guardado'); }).catch(e=>{ hideLoading(); alert('Erro ao guardar: '+e.message); });
+});
 
-            document.getElementById('editModal').classList.add('show');
-        }
+/* ===================== Delete item (file+db) ===================== */
+function deleteItem(type,key){
+  if(!confirm('Apagar item e ficheiro?')) return;
+  showLoading();
+  db.ref(`${type}/${key}`).once('value').then(snap=>{
+    const item=snap.val(); const sp=item && item.storagePath?item.storagePath:null;
+    const removeDb=()=>db.ref(`${type}/${key}`).remove();
+    if(sp){
+      storage.ref(sp).delete().then(()=>{ removeDb().then(()=>{ hideLoading(); renderList(type); alert('Item e ficheiro apagados.'); }); }).catch(err=>{ hideLoading(); if(confirm('Erro ao apagar ficheiro. Apagar só a entrada no site?')){ removeDb().then(()=>{ renderList(type); alert('Entrada removida.'); }); } });
+    } else { removeDb().then(()=>{ hideLoading(); renderList(type); alert('Item apagado.'); }); }
+  }).catch(e=>{ hideLoading(); alert('Erro: '+e.message); });
+}
 
-        function closeModal() {
-            document.getElementById('editModal').classList.remove('show');
-        }
+/* ===================== Files list: listar ficheiros conhecidos (por storagePath guardado no DB) ===================== */
+function refreshFiles(){
+  const list=document.getElementById('filesList'); list.innerHTML='';
+  if(!firebaseInitialized){ list.innerHTML='<div class="card small">Firebase não configurado</div>'; return; }
+  showLoading();
+  // varrer as coleções e juntar storagePath
+  const collections=['downloads','videos','avaliacao','tpc','materia','avisos'];
+  const found=[];
+  let remaining=collections.length;
+  collections.forEach(col=>{
+    db.ref(col).once('value').then(snap=>{
+      const data=snap.val(); if(data) Object.keys(data).forEach(k=>{ const it=data[k]; if(it && it.storagePath) found.push({col, key:k, title:it.title||'', storagePath:it.storagePath, fileName:it.fileName||''}); });
+    }).catch(()=>{}).finally(()=>{ remaining--; if(remaining===0){ hideLoading(); if(!found.length) list.innerHTML='<div class="card small">Nenhum ficheiro encontrado com storagePath.</div>'; else{ found.forEach(f=>{ const d=document.createElement('div'); d.className='card'; d.innerHTML=`<h3>${f.title||'(sem título)'}</h3><div class="small">coleção: ${f.col}</div><div class="meta">path: ${f.storagePath}</div><div style="margin-top:8px"><button class="btn red" onclick="directDelete('${f.col}','${f.key}','${f.storagePath}')">🗑️ Apagar do Storage & DB</button></div>`; list.appendChild(d); }); } } });
+  });
+}
 
-        /* ===================== EDIT ITEM ===================== */
-        function editItem(type, key) {
-            currentEditType = type;
-            currentEditKey = key;
-            showLoading();
-            db.ref(`${type}/${key}`).once('value').then(snapshot => {
-                hideLoading();
-                const item = snapshot.val() || {};
-                document.getElementById('itemTitle').value = item.title || '';
-                document.getElementById('itemDate').value = item.date || '';
-                document.getElementById('itemDescription').value = item.description || '';
-                document.getElementById('itemUrl').value = item.url || '';
-                document.getElementById('fileName').textContent = item.fileName || '';
-                document.getElementById('studentName').value = item.studentName || '';
-                document.getElementById('studentGrade').value = item.grade || '';
+/* ===================== Direct delete from files list ===================== */
+function directDelete(col,key,storagePath){
+  if(!confirm('Apagar ficheiro do Storage e remover a entrada?')) return;
+  showLoading();
+  storage.ref(storagePath).delete().then(()=>{
+    db.ref(`${col}/${key}`).update({fileUrl:null,storagePath:null,fileName:null}).then(()=>{ hideLoading(); refreshFiles(); renderList(col); alert('Apagado.'); });
+  }).catch(err=>{ hideLoading(); alert('Erro: '+err.message); });
+}
 
-                uploadedFileURL = item.fileUrl || null;
-                uploadedFilePath = item.storagePath || null;
+/* ===================== CSV import helpers (for avaliações em massa) ===================== */
+function openBulkImport(){ document.getElementById('csvModal').classList.add('show'); document.getElementById('csvPreview').innerHTML=`<div style="padding:10px"><input type="file" id="csvFile" accept=".csv" /></div>`; document.getElementById('csvFile').addEventListener('change',handleCsvOnce); }
+function handleCsvOnce(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=function(ev){ parseCsvPreview(ev.target.result); }; r.readAsText(f); }
+function parseCsvPreview(text){ const lines=text.split(/\r?\n/).filter(Boolean); const rows=[]; for(let i=0;i<lines.length;i++){ const cols=lines[i].split(','); if(i===0){ /* header check optional */ } else { rows.push({studentName:cols[0]||'', grade:cols[1]||'', comments:cols[2]||''}); } } // show preview
+  const pw=document.getElementById('csvPreview'); pw.innerHTML='<div style="max-height:300px;overflow:auto;border:1px solid #eee;padding:8px;background:#fafafa"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Aluno</th><th>Nota</th><th>Coment</th></tr></thead><tbody>'+rows.map(r=>`<tr><td>${r.studentName}</td><td>${r.grade}</td><td>${r.comments}</td></tr>`).join('')+'</tbody></table></div>'; document.getElementById('csvConfirmBtn').onclick=function(){ bulkImport(rows); };
+}
+function cancelCsv(){ document.getElementById('csvModal').classList.remove('show'); document.getElementById('csvPreview').innerHTML=''; }
+function bulkImport(rows){ if(!rows.length) return; showLoading(); let count=0; const pushes=[]; rows.forEach(r=>{ if(!r.studentName) return; const ref=db.ref('avaliacao').push(); pushes.push(ref.set({studentName:r.studentName, grade:r.grade, description:r.comments, timestamp:Date.now()})); }); Promise.all(pushes).then(()=>{ hideLoading(); renderList('avaliacao'); cancelCsv(); alert('Importado '+pushes.length+' avaliações'); }).catch(err=>{ hideLoading(); alert('Erro: '+err.message); }); }
 
-                // se existir ficheiro, mostra pré-visualização no modal
-                const preview = document.getElementById('previewContainer');
-                preview.innerHTML = '';
-                if (item.fileUrl) {
-                    const name = item.fileName || item.fileUrl;
-                    const isImage = /\.(jpe?g|png|gif|webp|bmp)$/i.test(name);
-                    const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(name) || (item.fileUrl && item.fileUrl.includes('video'));
-                    if (isImage) {
-                        preview.innerHTML = `<a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" alt="preview" class="preview-media" style="max-width:320px;"></a>`;
-                    } else if (isVideo) {
-                        preview.innerHTML = `<video controls class="preview-media" style="max-width:420px;"><source src="${item.fileUrl}"></video>`;
-                    } else {
-                        preview.innerHTML = `<a href="${item.fileUrl}" target="_blank" class="download-btn">📄 Abrir ficheiro existente</a>`;
-                    }
-                }
+/* ===================== Init: carregar listas e listeners ===================== */
+window.addEventListener('DOMContentLoaded',function(){
+  if(!firebaseInitialized) return;
+  renderList('tpc'); renderList('materia'); renderList('downloads'); renderList('videos'); renderList('avisos'); renderList('avaliacao');
+  db.ref('tpc').on('value',()=>renderList('tpc'));
+  db.ref('materia').on('value',()=>renderList('materia'));
+  db.ref('downloads').on('value',()=>renderList('downloads'));
+  db.ref('videos').on('value',()=>renderList('videos'));
+  db.ref('avisos').on('value',()=>renderList('avisos'));
+  db.ref('avaliacao').on('value',()=>renderList('avaliacao'));
+});
 
-                document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
-                document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
-                document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'avaliacao' || type === 'videos') ? 'block' : 'none';
-                document.getElementById('studentGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
-                document.getElementById('gradeGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
-
-                document.getElementById('editModal').classList.add('show');
-            }).catch(err => {
-                hideLoading();
-                alert('Erro ao carregar item: ' + (err.message || ''));
-            });
-        }
-
-        /* ===================== UPLOAD FILE (imagem / vídeo / pdf) ===================== */
-        function uploadFile(file) {
-            const saveBtn = document.getElementById('saveBtn');
-            saveBtn.disabled = true;
-            // Ajusta limite se necessário
-            const maxSize = 20 * 1024 * 1024; // 20MB
-            if (file.size > maxSize) {
-                alert('Ficheiro demasiado grande. Limite: 20 MB.');
-                document.getElementById('fileInput').value = '';
-                document.getElementById('fileName').textContent = '';
-                document.getElementById('previewContainer').innerHTML = '';
-                saveBtn.disabled = false;
-                return;
-            }
-            const timestamp = Date.now();
-            const fileName = `${timestamp}_${file.name}`;
-            const folder = (currentEditType === 'videos') ? 'videos' : 'downloads';
-            const storageRef = storage.ref(`${folder}/${fileName}`);
-            const uploadTask = storageRef.put(file);
-
-            const progressDiv = document.getElementById('uploadProgress');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            progressDiv.style.display = 'block';
-
-            uploadTask.on('state_changed', snapshot => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                progressFill.style.width = progress + '%';
-                progressText.textContent = Math.round(progress) + '%';
-            }, error => {
-                alert('Erro no upload: ' + (error.message || ''));
-                progressDiv.style.display = 'none';
-                saveBtn.disabled = false;
-            }, () => {
-                uploadTask.snapshot.ref.getDownloadURL().then(url => {
-                    uploadedFileURL = url;
-                    uploadedFilePath = uploadTask.snapshot.ref.fullPath; // ex: "videos/1708_foo.mp4"
-                    progressText.textContent = '✅ Completo!';
-                    saveBtn.disabled = false;
-                    setTimeout(() => progressDiv.style.display = 'none', 1200);
-
-                    // mostrar preview do ficheiro já carregado
-                    const preview = document.getElementById('previewContainer');
-                    preview.innerHTML = '';
-                    if (file.type.startsWith('image/')) {
-                        preview.innerHTML = `<a href="${uploadedFileURL}" target="_blank"><img src="${uploadedFileURL}" class="preview-media" style="max-width:320px;"></a>`;
-                    } else if (file.type.startsWith('video/')) {
-                        preview.innerHTML = `<video controls class="preview-media" style="max-width:420px;"><source src="${uploadedFileURL}"></video>`;
-                    } else {
-                        preview.innerHTML = `<a href="${uploadedFileURL}" target="_blank" class="download-btn">📄 Abrir ficheiro</a>`;
-                    }
-                });
-            });
-        }
-
-        /* Quando o utilizador escolhe ficheiro no input */
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            const preview = document.getElementById('previewContainer');
-            preview.innerHTML = '';
-            if (!file) return;
-            document.getElementById('fileName').textContent = '📎 ' + file.name;
-
-            // mostrar preview local imediato (antes do upload)
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(ev) { preview.innerHTML = `<img src="${ev.target.result}" class="preview-media" style="max-width:320px;">`; };
-                reader.readAsDataURL(file);
-            } else if (file.type.startsWith('video/')) {
-                const reader = new FileReader();
-                reader.onload = function(ev) { preview.innerHTML = `<video controls class="preview-media" style="max-width:420px;"><source src="${ev.target.result}"></video>`; };
-                reader.readAsDataURL(file);
-            }
-
-            // iniciar upload
-            uploadFile(file);
-        });
-
-        /* ===================== SUBMETER FORM (guardar no Database) ===================== */
-        document.getElementById('editForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const title = document.getElementById('itemTitle').value;
-            const description = document.getElementById('itemDescription').value;
-            const newItem = { title, description, timestamp: Date.now() };
-
-            if (currentEditType === 'tpc') newItem.date = document.getElementById('itemDate').value;
-            if (currentEditType === 'videos') {
-                const url = document.getElementById('itemUrl').value;
-                if (url) newItem.url = url;
-            }
-
-            if (currentEditType === 'downloads') {
-                if (uploadedFileURL) {
-                    newItem.fileUrl = uploadedFileURL;
-                    newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'ficheiro';
-                    newItem.storagePath = uploadedFilePath || null;
-                } else if (!currentEditKey) {
-                    alert('Faz upload de um ficheiro!');
-                    return;
-                }
-            }
-
-            if (currentEditType === 'videos') {
-                // Preferimos ficheiro enviado; se não houver ficheiro, permitimos URL (ex: YouTube)
-                if (uploadedFileURL) {
-                    newItem.fileUrl = uploadedFileURL;
-                    newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'video';
-                    newItem.storagePath = uploadedFilePath || null;
-                } else {
-                    // Se não tem ficheiro e não tem URL, pedimos algo
-                    if (!newItem.url && !uploadedFileURL && !currentEditKey) {
-                        alert('Carrega um vídeo ou coloca um link de vídeo!');
-                        return;
-                    }
-                }
-            }
-
-            if (currentEditType === 'avaliacao') {
-                newItem.studentName = document.getElementById('studentName').value || null;
-                newItem.grade = document.getElementById('studentGrade').value || null;
-                if (uploadedFileURL) {
-                    newItem.fileUrl = uploadedFileURL;
-                    newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'ficheiro';
-                    newItem.storagePath = uploadedFilePath || null;
-                }
-            }
-
-            showLoading();
-            const ref = currentEditKey ? db.ref(`${currentEditType}/${currentEditKey}`) : db.ref(currentEditType).push();
-            ref.set(newItem).then(() => {
-                hideLoading();
-                renderList(currentEditType);
-                closeModal();
-                alert('✅ Guardado!');
-            }).catch(err => {
-                hideLoading();
-                alert('Erro ao guardar: ' + (err.message || ''));
-            });
-        });
-
-        /* ===================== DELETAR ITEM (apaga ficheiro no Storage se existir) ===================== */
-        function deleteItem(type, key) {
-            if (!confirm('Apagar este item? Esta ação é irreversível.')) return;
-            showLoading();
-            db.ref(`${type}/${key}`).once('value').then(snapshot => {
-                const item = snapshot.val();
-                const storagePath = item && item.storagePath ? item.storagePath : null;
-                const removeDb = () => db.ref(`${type}/${key}`).remove();
-                if (storagePath) {
-                    storage.ref(storagePath).delete().then(() => {
-                        removeDb().then(() => { hideLoading(); renderList(type); alert('✅ Item e ficheiro apagados.'); });
-                    }).catch(error => {
-                        console.error('Erro ao apagar ficheiro:', error);
-                        if (confirm('Erro ao apagar o ficheiro no Storage. Queres remover só a entrada do site?')) {
-                            removeDb().then(() => { hideLoading(); renderList(type); alert('✅ Entrada removida (ficheiro não apagado).'); });
-                        } else hideLoading();
-                    });
-                } else {
-                    removeDb().then(() => { hideLoading(); renderList(type); alert('✅ Item apagado.'); });
-                }
-            }).catch(err => { hideLoading(); alert('Erro ao buscar item: ' + (err.message || '')); });
-        }
-
-        /* ===================== INICIALIZAÇÃO ===================== */
-        window.addEventListener('DOMContentLoaded', function() {
-            if (firebaseInitialized) {
-                renderList('tpc'); renderList('materia'); renderList('downloads'); renderList('videos'); renderList('avisos'); renderList('avaliacao');
-                db.ref('tpc').on('value', () => renderList('tpc'));
-                db.ref('materia').on('value', () => renderList('materia'));
-                db.ref('downloads').on('value', () => renderList('downloads'));
-                db.ref('videos').on('value', () => renderList('videos'));
-                db.ref('avisos').on('value', () => renderList('avisos'));
-                db.ref('avaliacao').on('value', () => renderList('avaliacao'));
-            }
-        });
-
-        document.getElementById('passwordInput').addEventListener('keypress', function(e){ if (e.key === 'Enter') checkPassword(); });
-    </script>
+/* ===================== Extras: keyboard submit login ===================== */
+document.getElementById('passwordInput').addEventListener('keypress',function(e){ if(e.key==='Enter') checkPassword(); });
+</script>
 </body>
 </html>
 
