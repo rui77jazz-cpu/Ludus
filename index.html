@@ -3,15 +3,13 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Sala do Professor Rui</title>
+<title>A Minha Sala de Aula</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:Segoe UI, Tahoma, Geneva, Verdana, sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:18px;color:#222}
 .container{max-width:1100px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,0.15)}
-header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:22px;text-align:center;position:relative}
-header h1{font-size:1.6rem;margin-bottom:6px}
-header p{opacity:0.95}
-.admin-toggle{position:absolute;right:18px;top:18px;background:rgba(255,255,255,0.15);border:2px solid #fff;color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer}
+header{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:22px;text-align:center}
+header h1{font-size:1.6rem}
 nav{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;background:#f8f9fa;padding:8px;border-bottom:3px solid #667eea}
 nav button{background:none;border:0;padding:10px 14px;cursor:pointer;font-weight:600;color:#333;border-bottom:3px solid transparent}
 nav button.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea}
@@ -38,7 +36,9 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
 .preview{margin-top:10px}
 .preview img, .preview video{max-width:100%;border-radius:8px;display:block}
 .meta{font-size:.85rem;color:#666;margin-top:6px}
-.footer{padding:12px;text-align:center;color:#666}
+.footer{padding:12px;text-align:center;color:#999;font-size:0.8rem;position:relative}
+.admin-access{position:absolute;right:20px;bottom:12px;cursor:pointer;opacity:0.3;transition:opacity 0.2s;font-size:1rem}
+.admin-access:hover{opacity:0.8}
 .loading{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.45);z-index:9999}
 .loading.show{display:flex}
 .loading .box{background:#fff;padding:18px;border-radius:10px}
@@ -55,9 +55,7 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
 
 <div class="container">
 <header>
-  <h1>🎓 Sala do Professor Rui</h1>
-  <p>Gestão de TPC, Materiais, Downloads, Vídeos, Avisos e Avaliação.</p>
-  <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">👨‍🏫 Modo Professor</button>
+  <h1>🎓 A Minha Sala de Aula</h1>
 </header>
 
 <nav>
@@ -67,7 +65,7 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
   <button class="nav-btn" onclick="showSection('videos')">🎬 Vídeos</button>
   <button class="nav-btn" onclick="showSection('avisos')">📣 Avisos</button>
   <button class="nav-btn" onclick="showSection('avaliacao')">📝 Avaliação</button>
-  <button class="nav-btn" onclick="showSection('files')">🗂️ Ficheiros</button>
+  <button class="nav-btn admin-controls hidden" onclick="showSection('files')">🗂️ Ficheiros</button>
 </nav>
 
 <div class="content">
@@ -112,14 +110,16 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
 
   <div id="files" class="section">
     <h2>🗂️ Ficheiros no Storage</h2>
-    <p class="small">Lista dos ficheiros guardados — podes apagar individualmente.</p>
     <div class="admin-controls hidden" id="filesAdmin"><button class="btn" onclick="refreshFiles()">🔄 Atualizar</button></div>
     <div id="filesList"></div>
   </div>
 
 </div>
 
-<footer class="footer">Desenvolvido para ser simples — podes editar este código no GitHub.</footer>
+<footer class="footer">
+  Prof. Rui Luís Santos
+  <span class="admin-access" onclick="toggleAdmin()" title="Acesso Professor">🔑</span>
+</footer>
 </div>
 
 <!-- Modal: add/edit -->
@@ -155,15 +155,6 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
         <button type="button" class="btn warn" onclick="deleteOnlyFile()">🗑️ Apagar ficheiro</button>
         <button type="button" class="btn" onclick="replaceFile()">🔁 Substituir ficheiro</button>
       </div>
-    </div>
-
-    <div class="form-row" id="studentGroup" style="display:none">
-      <label>Aluno(a)</label>
-      <input type="text" id="studentName" placeholder="Nome do aluno" />
-    </div>
-    <div class="form-row" id="gradeGroup" style="display:none">
-      <label>Nota</label>
-      <input type="text" id="studentGrade" placeholder="Ex: 16/20" />
     </div>
 
     <div style="text-align:right;margin-top:8px">
@@ -258,7 +249,8 @@ function toggleAdmin() {
     isAdminMode = false;
     document.querySelectorAll('.admin-controls').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.controls').forEach(el => el.classList.add('hidden'));
-    document.getElementById('adminToggle').textContent = '👨‍🏫 Modo Professor';
+    document.querySelector('.admin-access').textContent = '🔑';
+    document.querySelector('.admin-access').style.opacity = '0.3';
     // Recarregar para esconder botões
     ['tpc','materia','downloads','videos','avisos','avaliacao'].forEach(t => renderList(t));
   } else {
@@ -280,7 +272,8 @@ function checkPassword() {
     document.querySelectorAll('.admin-controls').forEach(el => el.classList.remove('hidden'));
     document.getElementById('passwordInput').value = '';
     document.getElementById('loginError').textContent = '';
-    document.getElementById('adminToggle').textContent = '🔓 Modo Ativo';
+    document.querySelector('.admin-access').textContent = '🔓';
+    document.querySelector('.admin-access').style.opacity = '0.8';
     ['tpc','materia','downloads','videos','avisos','avaliacao'].forEach(t => renderList(t));
   } else {
     document.getElementById('loginError').textContent = '❌ Senha incorreta';
@@ -324,8 +317,6 @@ function renderList(type) {
       let html = `${ctrl}<h3>${item.title || ''}</h3>`;
       
       if (item.date) html += `<div class="small">📅 ${item.date}</div>`;
-      if (item.studentName) html += `<div class="small"><strong>Aluno:</strong> ${item.studentName}</div>`;
-      if (item.grade) html += `<div class="small"><strong>Nota:</strong> ${item.grade}</div>`;
       if (item.description) html += `<div class="small">${item.description}</div>`;
       
       if (item.fileUrl) {
@@ -396,15 +387,13 @@ function openAddModal(type) {
   document.getElementById('fileInput').value = '';
   document.getElementById('fileMeta').textContent = '';
   document.getElementById('preview').innerHTML = '';
-  document.getElementById('studentName').value = '';
-  document.getElementById('studentGrade').value = '';
   
   // Configurar label e tipos de ficheiro baseado na secção
   const fileLabel = document.getElementById('fileLabel');
   const fileInput = document.getElementById('fileInput');
   
   if (type === 'avaliacao') {
-    fileLabel.textContent = 'Imagem / Printscreen (PNG, JPG...)';
+    fileLabel.innerHTML = 'Imagem / Printscreen <span style="color:#999;font-weight:400">(opcional)</span>';
     fileInput.accept = 'image/*';
   } else if (type === 'videos') {
     fileLabel.textContent = 'Vídeo';
@@ -417,8 +406,6 @@ function openAddModal(type) {
   document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
   document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
   document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'videos' || type === 'avaliacao') ? 'block' : 'none';
-  document.getElementById('studentGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
-  document.getElementById('gradeGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
   
   document.getElementById('editModal').classList.add('show');
 }
@@ -446,8 +433,6 @@ function editItem(type, key) {
     document.getElementById('itemUrl').value = item.url || '';
     document.getElementById('fileMeta').textContent = item.fileName ? ('📎 ' + item.fileName) : '';
     document.getElementById('preview').innerHTML = '';
-    document.getElementById('studentName').value = item.studentName || '';
-    document.getElementById('studentGrade').value = item.grade || '';
     
     uploadedFileURL = item.fileUrl || null;
     uploadedFilePath = item.storagePath || null;
@@ -467,7 +452,7 @@ function editItem(type, key) {
     const fileInput = document.getElementById('fileInput');
     
     if (type === 'avaliacao') {
-      fileLabel.textContent = 'Imagem / Printscreen';
+      fileLabel.innerHTML = 'Imagem / Printscreen <span style="color:#999;font-weight:400">(opcional)</span>';
       fileInput.accept = 'image/*';
     } else if (type === 'videos') {
       fileLabel.textContent = 'Vídeo';
@@ -480,8 +465,6 @@ function editItem(type, key) {
     document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
     document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
     document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'videos' || type === 'avaliacao') ? 'block' : 'none';
-    document.getElementById('studentGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
-    document.getElementById('gradeGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
     
     document.getElementById('editModal').classList.add('show');
   }).catch(err => {
@@ -733,11 +716,6 @@ document.getElementById('editForm').addEventListener('submit', function(e) {
       alert('Carrega um ficheiro!');
       return;
     }
-  }
-  
-  if (currentEditType === 'avaliacao') {
-    obj.studentName = document.getElementById('studentName').value || null;
-    obj.grade = document.getElementById('studentGrade').value || null;
   }
   
   showLoading();
