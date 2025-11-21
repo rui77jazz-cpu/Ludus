@@ -18,7 +18,7 @@ nav button.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea}
 .section.active{display:block}
 .card{background:#f8f9fa;padding:14px;border-radius:10px;margin-bottom:12px;border-left:5px solid #667eea;position:relative}
 .card h3{color:#764ba2;margin-bottom:6px}
-.small{font-size:.9rem;color:#555}
+.small{font-size:.9rem;color:#555;line-height:1.6}
 .controls{position:absolute;top:10px;right:10px;display:flex;gap:6px}
 .controls.hidden{display:none}
 .admin-controls.hidden{display:none}
@@ -317,7 +317,11 @@ function renderList(type) {
       let html = `${ctrl}<h3>${item.title || ''}</h3>`;
       
       if (item.date) html += `<div class="small">📅 ${item.date}</div>`;
-      if (item.description) html += `<div class="small">${item.description}</div>`;
+      if (item.description) {
+        // Preservar quebras de linha convertendo \n em <br>
+        const descWithBreaks = item.description.replace(/\n/g, '<br>');
+        html += `<div class="small">${descWithBreaks}</div>`;
+      }
       
       if (item.fileUrl) {
         const name = item.fileName || item.fileUrl;
