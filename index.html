@@ -23,6 +23,7 @@ nav button.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea}
 .small{font-size:.9rem;color:#555}
 .controls{position:absolute;top:10px;right:10px;display:flex;gap:6px}
 .controls.hidden{display:none}
+.admin-controls.hidden{display:none}
 .btn{background:#667eea;color:#fff;padding:8px 12px;border-radius:8px;border:0;cursor:pointer;font-size:0.9rem}
 .btn.green{background:#28a745}
 .btn.warn{background:#ffc107;color:#222}
@@ -177,7 +178,10 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
   <h3>🔐 Modo Professor</h3>
   <p>Introduz a password:</p>
   <input type="password" id="passwordInput" style="padding:10px;border-radius:8px;border:2px solid #667eea;width:100%" />
-  <div style="text-align:right;margin-top:10px"><button class="btn" onclick="checkPassword()">Entrar</button></div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px">
+    <button class="btn" onclick="closeLoginModal()">Cancelar</button>
+    <button class="btn green" onclick="checkPassword()">Entrar</button>
+  </div>
   <div id="loginError" class="meta" style="color:#dc3545;margin-top:8px"></div>
 </div></div>
 
@@ -262,6 +266,12 @@ function toggleAdmin() {
   }
 }
 
+function closeLoginModal() {
+  document.getElementById('loginModal').classList.remove('show');
+  document.getElementById('passwordInput').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
 function checkPassword() {
   const v = document.getElementById('passwordInput').value;
   if (v === DEFAULT_PASSWORD) {
@@ -283,7 +293,7 @@ function renderList(type) {
   if (!el) return;
   
   if (!firebaseInitialized) {
-    el.innerHTML = '<div class="card">Firebase não configurado</div>';
+    el.innerHTML = '';
     return;
   }
   
@@ -366,6 +376,12 @@ function renderList(type) {
 
 /* ===================== Open modal ===================== */
 function openAddModal(type) {
+  // PROTEÇÃO: Só professor pode adicionar
+  if (!isAdminMode) {
+    alert('⚠️ Apenas o professor pode adicionar conteúdo!');
+    return;
+  }
+  
   currentEditType = type;
   currentEditKey = null;
   uploadedFileURL = null;
@@ -409,6 +425,12 @@ function openAddModal(type) {
 
 /* ===================== Edit item ===================== */
 function editItem(type, key) {
+  // PROTEÇÃO: Só professor pode editar
+  if (!isAdminMode) {
+    alert('⚠️ Apenas o professor pode editar conteúdo!');
+    return;
+  }
+  
   currentEditType = type;
   currentEditKey = key;
   showLoading();
@@ -623,6 +645,12 @@ function deleteOnlyFile() {
 }
 
 function deleteFileOnly(type, key) {
+  // PROTEÇÃO: Só professor pode apagar
+  if (!isAdminMode) {
+    alert('⚠️ Apenas o professor pode apagar ficheiros!');
+    return;
+  }
+  
   if (!confirm('Apagar apenas o ficheiro? (O item permanece)')) return;
   
   showLoading();
@@ -731,6 +759,12 @@ document.getElementById('editForm').addEventListener('submit', function(e) {
 
 /* ===================== Delete item ===================== */
 function deleteItem(type, key) {
+  // PROTEÇÃO: Só professor pode apagar
+  if (!isAdminMode) {
+    alert('⚠️ Apenas o professor pode apagar conteúdo!');
+    return;
+  }
+  
   if (!confirm('❌ Apagar item completo (incluindo ficheiro)?')) return;
   
   showLoading();
@@ -775,7 +809,7 @@ function refreshFiles() {
   list.innerHTML = '';
   
   if (!firebaseInitialized) {
-    list.innerHTML = '<div class="card small">Firebase não configurado</div>';
+    list.innerHTML = '';
     return;
   }
   
