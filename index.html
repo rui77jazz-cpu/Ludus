@@ -18,7 +18,7 @@ nav button.active{background:#fff;color:#667eea;border-bottom:3px solid #667eea}
 .section.active{display:block}
 .card{background:#f8f9fa;padding:14px;border-radius:10px;margin-bottom:12px;border-left:5px solid #667eea;position:relative}
 .card h3{color:#764ba2;margin-bottom:6px}
-.small{font-size:1.2rem;color:#555;line-height:1.6}
+.small{font-size:1rem;color:#555;line-height:1.6}
 .controls{position:absolute;top:10px;right:10px;display:flex;gap:6px}
 .controls.hidden{display:none}
 .admin-controls.hidden{display:none}
@@ -59,32 +59,47 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
 </header>
 
 <nav>
-  <button class="nav-btn active" onclick="showSection('tpc')">📚 Trabalhos</button>
-  <button class="nav-btn" onclick="showSection('materia')">📖 Matéria</button>
-  <button class="nav-btn" onclick="showSection('downloads')">📥 Downloads</button>
+  <button class="nav-btn active" onclick="showSection('tpc')">📚 TPC</button>
+  <button class="nav-btn" onclick="showSection('portugues')">📕 Português</button>
+  <button class="nav-btn" onclick="showSection('matematica')">➕ Matemática</button>
+  <button class="nav-btn" onclick="showSection('estudomeio')">🌍 Estudo do Meio</button>
+  <button class="nav-btn" onclick="showSection('documentos')">📥 Documentos</button>
   <button class="nav-btn" onclick="showSection('videos')">🎬 Vídeos</button>
   <button class="nav-btn" onclick="showSection('avisos')">📣 Avisos</button>
   <button class="nav-btn" onclick="showSection('avaliacao')">📝 Avaliação</button>
-  <button class="nav-btn admin-controls hidden" onclick="showSection('files')">🗂️ Ficheiros</button>
+  <button class="nav-btn" onclick="showSection('recursos')">🔗 Recursos</button>
+  <button class="nav-btn" onclick="showSection('mensagens')">💬 Mensagens</button>
 </nav>
 
 <div class="content">
   <div id="tpc" class="section active">
-    <h2>📚 Trabalhos de Casa</h2>
+    <h2>📚 TPC</h2>
     <div class="admin-controls hidden" id="tpcAdmin"><button class="btn green" onclick="openAddModal('tpc')">➕ Adicionar TPC</button></div>
     <div id="tpcList"></div>
   </div>
 
-  <div id="materia" class="section">
-    <h2>📖 Matéria</h2>
-    <div class="admin-controls hidden" id="materiaAdmin"><button class="btn green" onclick="openAddModal('materia')">➕ Adicionar Matéria</button></div>
-    <div id="materiaList"></div>
+  <div id="portugues" class="section">
+    <h2>📕 Português</h2>
+    <div class="admin-controls hidden" id="portuguesAdmin"><button class="btn green" onclick="openAddModal('portugues')">➕ Adicionar Conteúdo</button></div>
+    <div id="portuguesList"></div>
   </div>
 
-  <div id="downloads" class="section">
-    <h2>📥 Downloads</h2>
-    <div class="admin-controls hidden" id="downloadsAdmin"><button class="btn green" onclick="openAddModal('downloads')">➕ Adicionar Download</button></div>
-    <div id="downloadsList"></div>
+  <div id="matematica" class="section">
+    <h2>➕ Matemática</h2>
+    <div class="admin-controls hidden" id="matematicaAdmin"><button class="btn green" onclick="openAddModal('matematica')">➕ Adicionar Conteúdo</button></div>
+    <div id="matematicaList"></div>
+  </div>
+
+  <div id="estudomeio" class="section">
+    <h2>🌍 Estudo do Meio</h2>
+    <div class="admin-controls hidden" id="estudomeioAdmin"><button class="btn green" onclick="openAddModal('estudomeio')">➕ Adicionar Conteúdo</button></div>
+    <div id="estudomeioList"></div>
+  </div>
+
+  <div id="documentos" class="section">
+    <h2>📥 Documentos</h2>
+    <div class="admin-controls hidden" id="documentosAdmin"><button class="btn green" onclick="openAddModal('documentos')">➕ Adicionar Documento</button></div>
+    <div id="documentosList"></div>
   </div>
 
   <div id="videos" class="section">
@@ -108,10 +123,22 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
     <div id="avaliacaoList"></div>
   </div>
 
-  <div id="files" class="section">
-    <h2>🗂️ Ficheiros no Storage</h2>
-    <div class="admin-controls hidden" id="filesAdmin"><button class="btn" onclick="refreshFiles()">🔄 Atualizar</button></div>
-    <div id="filesList"></div>
+  <div id="recursos" class="section">
+    <h2>🔗 Recursos</h2>
+    <p class="small" style="margin-bottom:12px">🎮 Jogos, testes interativos e atividades</p>
+    <div class="admin-controls hidden" id="recursosAdmin">
+      <button class="btn green" onclick="openAddModal('recursos')">➕ Adicionar Recurso</button>
+    </div>
+    <div id="recursosList"></div>
+  </div>
+
+  <div id="mensagens" class="section">
+    <h2>💬 Mensagens</h2>
+    <p class="small" style="margin-bottom:12px">📨 Conversa com o professor</p>
+    <div style="margin-bottom:12px">
+      <button class="btn green" onclick="openMessageModal()">✉️ Enviar Mensagem</button>
+    </div>
+    <div id="mensagensList"></div>
   </div>
 
 </div>
@@ -127,8 +154,8 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
   <h3 id="modalTitle">Adicionar</h3>
   <form id="editForm">
     <div class="form-row">
-      <label>Título</label>
-      <input type="text" id="itemTitle" required />
+      <label>Título <span style="color:#999;font-weight:400">(opcional)</span></label>
+      <input type="text" id="itemTitle" placeholder="Ex: Tema da aula..." />
     </div>
     <div class="form-row" id="dateGroup" style="display:none">
       <label>Data</label>
@@ -174,6 +201,41 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
     <button class="btn green" onclick="checkPassword()">Entrar</button>
   </div>
   <div id="loginError" class="meta" style="color:#dc3545;margin-top:8px"></div>
+</div></div>
+
+<!-- Modal: nova mensagem -->
+<div class="modal" id="messageModal"><div class="modal-inner" style="max-width:520px">
+  <h3>✉️ Enviar Mensagem ao Professor</h3>
+  <form id="messageForm">
+    <div class="form-row">
+      <label>O teu nome</label>
+      <input type="text" id="studentNameMsg" required placeholder="Ex: João Silva" />
+    </div>
+    <div class="form-row">
+      <label>Mensagem</label>
+      <textarea id="messageText" rows="4" required placeholder="Escreve a tua mensagem..."></textarea>
+    </div>
+    <div style="text-align:right;margin-top:8px">
+      <button type="button" class="btn" onclick="closeMessageModal()">Cancelar</button>
+      <button type="submit" class="btn green">Enviar</button>
+    </div>
+  </form>
+</div></div>
+
+<!-- Modal: responder mensagem -->
+<div class="modal" id="replyModal"><div class="modal-inner" style="max-width:520px">
+  <h3>↪️ Responder Mensagem</h3>
+  <div id="originalMessage" class="card" style="margin-bottom:12px;background:#f0f0f0"></div>
+  <form id="replyForm">
+    <div class="form-row">
+      <label>Resposta</label>
+      <textarea id="replyText" rows="4" required placeholder="Escreve a tua resposta..."></textarea>
+    </div>
+    <div style="text-align:right;margin-top:8px">
+      <button type="button" class="btn" onclick="closeReplyModal()">Cancelar</button>
+      <button type="submit" class="btn green">Enviar Resposta</button>
+    </div>
+  </form>
 </div></div>
 
 <!-- IMPORTANTE: Importar Firebase -->
@@ -252,7 +314,8 @@ function toggleAdmin() {
     document.querySelector('.admin-access').textContent = '🔑';
     document.querySelector('.admin-access').style.opacity = '0.3';
     // Recarregar para esconder botões
-    ['tpc','materia','downloads','videos','avisos','avaliacao'].forEach(t => renderList(t));
+    ['tpc','portugues','matematica','estudomeio','documentos','videos','avisos','avaliacao','recursos'].forEach(t => renderList(t));
+    renderMessages();
   } else {
     document.getElementById('loginModal').classList.add('show');
   }
@@ -274,7 +337,8 @@ function checkPassword() {
     document.getElementById('loginError').textContent = '';
     document.querySelector('.admin-access').textContent = '🔓';
     document.querySelector('.admin-access').style.opacity = '0.8';
-    ['tpc','materia','downloads','videos','avisos','avaliacao'].forEach(t => renderList(t));
+    ['tpc','portugues','matematica','estudomeio','documentos','videos','avisos','avaliacao','recursos'].forEach(t => renderList(t));
+    renderMessages();
   } else {
     document.getElementById('loginError').textContent = '❌ Senha incorreta';
   }
@@ -356,7 +420,9 @@ function renderList(type) {
       }
       
       if (item.url && !item.fileUrl) {
-        html += `<div style="margin-top:8px"><a href="${item.url}" target="_blank" class="btn">▶ Ver link</a></div>`;
+        const linkText = type === 'recursos' ? '🎮 Abrir Atividade' : '▶ Ver link';
+        const linkStyle = type === 'recursos' ? 'background:#4ecdc4;font-size:1.05rem;padding:10px 16px' : '';
+        html += `<div style="margin-top:8px"><a href="${item.url}" target="_blank" class="btn" style="${linkStyle}">${linkText}</a></div>`;
       }
       
       div.innerHTML = html;
@@ -383,7 +449,20 @@ function openAddModal(type) {
   uploadedFilePath = null;
   uploadedFileName = null;
   
-  document.getElementById('modalTitle').textContent = 'Adicionar ' + type;
+  // Títulos personalizados para cada tipo
+  const titles = {
+    'tpc': 'TPC',
+    'portugues': 'Português',
+    'matematica': 'Matemática',
+    'estudomeio': 'Estudo do Meio',
+    'documentos': 'Documento',
+    'videos': 'Vídeo',
+    'avisos': 'Aviso',
+    'avaliacao': 'Avaliação',
+    'recursos': 'Recurso'
+  };
+  
+  document.getElementById('modalTitle').textContent = 'Adicionar ' + (titles[type] || type);
   document.getElementById('itemTitle').value = '';
   document.getElementById('itemDate').value = '';
   document.getElementById('itemDescription').value = '';
@@ -402,14 +481,20 @@ function openAddModal(type) {
   } else if (type === 'videos') {
     fileLabel.textContent = 'Vídeo';
     fileInput.accept = 'video/*';
+  } else if (type === 'recursos') {
+    fileLabel.textContent = 'Link do recurso (opcional se tiver ficheiro)';
+    fileInput.accept = 'image/*,.pdf,.doc,.docx,video/*';
+  } else if (type === 'portugues' || type === 'matematica' || type === 'estudomeio') {
+    fileLabel.innerHTML = 'Ficheiro <span style="color:#999;font-weight:400">(opcional - PDF, Imagem...)</span>';
+    fileInput.accept = 'image/*,.pdf,.doc,.docx,video/*';
   } else {
     fileLabel.textContent = 'Ficheiro (PDF, Imagem, Vídeo...)';
     fileInput.accept = 'image/*,.pdf,.doc,.docx,video/*';
   }
   
   document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
-  document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
-  document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'videos' || type === 'avaliacao') ? 'block' : 'none';
+  document.getElementById('urlGroup').style.display = (type === 'videos' || type === 'recursos') ? 'block' : 'none';
+  document.getElementById('fileGroup').style.display = (type === 'documentos' || type === 'videos' || type === 'avaliacao' || type === 'recursos' || type === 'portugues' || type === 'matematica' || type === 'estudomeio') ? 'block' : 'none';
   
   document.getElementById('editModal').classList.add('show');
 }
@@ -430,7 +515,20 @@ function editItem(type, key) {
     hideLoading();
     const item = snap.val() || {};
     
-    document.getElementById('modalTitle').textContent = 'Editar ' + type;
+    // Títulos personalizados
+    const titles = {
+      'tpc': 'TPC',
+      'portugues': 'Português',
+      'matematica': 'Matemática',
+      'estudomeio': 'Estudo do Meio',
+      'documentos': 'Documento',
+      'videos': 'Vídeo',
+      'avisos': 'Aviso',
+      'avaliacao': 'Avaliação',
+      'recursos': 'Recurso'
+    };
+    
+    document.getElementById('modalTitle').textContent = 'Editar ' + (titles[type] || type);
     document.getElementById('itemTitle').value = item.title || '';
     document.getElementById('itemDate').value = item.date || '';
     document.getElementById('itemDescription').value = item.description || '';
@@ -461,14 +559,20 @@ function editItem(type, key) {
     } else if (type === 'videos') {
       fileLabel.textContent = 'Vídeo';
       fileInput.accept = 'video/*';
+    } else if (type === 'recursos') {
+      fileLabel.textContent = 'Link do recurso (opcional se tiver ficheiro)';
+      fileInput.accept = 'image/*,.pdf,.doc,.docx,video/*';
+    } else if (type === 'portugues' || type === 'matematica' || type === 'estudomeio') {
+      fileLabel.innerHTML = 'Ficheiro <span style="color:#999;font-weight:400">(opcional - PDF, Imagem...)</span>';
+      fileInput.accept = 'image/*,.pdf,.doc,.docx,video/*';
     } else {
       fileLabel.textContent = 'Ficheiro';
       fileInput.accept = 'image/*,.pdf,.doc,.docx,video/*';
     }
     
     document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
-    document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
-    document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'videos' || type === 'avaliacao') ? 'block' : 'none';
+    document.getElementById('urlGroup').style.display = (type === 'videos' || type === 'recursos') ? 'block' : 'none';
+    document.getElementById('fileGroup').style.display = (type === 'documentos' || type === 'videos' || type === 'avaliacao' || type === 'recursos' || type === 'portugues' || type === 'matematica' || type === 'estudomeio') ? 'block' : 'none';
     
     document.getElementById('editModal').classList.add('show');
   }).catch(err => {
@@ -490,7 +594,16 @@ function uploadFile(file) {
     return;
   }
   
-  const folder = (currentEditType === 'videos') ? 'videos' : (currentEditType === 'avaliacao') ? 'avaliacoes' : 'downloads';
+  // Determinar pasta baseado no tipo
+  let folder = 'geral';
+  if (currentEditType === 'videos') folder = 'videos';
+  else if (currentEditType === 'avaliacao') folder = 'avaliacoes';
+  else if (currentEditType === 'documentos') folder = 'documentos';
+  else if (currentEditType === 'recursos') folder = 'recursos';
+  else if (currentEditType === 'portugues') folder = 'portugues';
+  else if (currentEditType === 'matematica') folder = 'matematica';
+  else if (currentEditType === 'estudomeio') folder = 'estudomeio';
+  
   const name = Date.now() + '_' + file.name;
   const ref = storage.ref(`${folder}/${name}`);
   const task = ref.put(file);
@@ -691,13 +804,14 @@ document.getElementById('editForm').addEventListener('submit', function(e) {
   const title = document.getElementById('itemTitle').value.trim();
   const description = document.getElementById('itemDescription').value.trim();
   
-  if (!title) {
-    alert('Escreve um título');
+  // Validação: precisa de PELO MENOS título OU descrição OU ficheiro
+  if (!title && !description && !uploadedFileURL) {
+    alert('⚠️ Preenche pelo menos o título, a descrição ou carrega um ficheiro!');
     return;
   }
   
   const obj = {
-    title,
+    title: title || '(Sem título)',
     description,
     timestamp: Date.now()
   };
@@ -706,17 +820,17 @@ document.getElementById('editForm').addEventListener('submit', function(e) {
     obj.date = document.getElementById('itemDate').value;
   }
   
-  if (currentEditType === 'videos') {
+  if (currentEditType === 'videos' || currentEditType === 'recursos') {
     const url = document.getElementById('itemUrl').value.trim();
     if (url) obj.url = url;
   }
   
-  if (currentEditType === 'downloads' || currentEditType === 'videos' || currentEditType === 'avaliacao') {
+  if (currentEditType === 'documentos' || currentEditType === 'videos' || currentEditType === 'avaliacao' || currentEditType === 'recursos' || currentEditType === 'portugues' || currentEditType === 'matematica' || currentEditType === 'estudomeio') {
     if (uploadedFileURL) {
       obj.fileUrl = uploadedFileURL;
       obj.fileName = uploadedFileName || null;
       obj.storagePath = uploadedFilePath || null;
-    } else if (!currentEditKey && (currentEditType === 'downloads' || currentEditType === 'videos')) {
+    } else if (!currentEditKey && (currentEditType === 'documentos' || currentEditType === 'videos')) {
       alert('Carrega um ficheiro!');
       return;
     }
@@ -785,83 +899,206 @@ function deleteItem(type, key) {
   });
 }
 
-/* ===================== Files list ===================== */
-function refreshFiles() {
-  const list = document.getElementById('filesList');
-  list.innerHTML = '';
+/* ===================== Sistema de Mensagens ===================== */
+let currentReplyToKey = null;
+
+function openMessageModal() {
+  document.getElementById('studentNameMsg').value = '';
+  document.getElementById('messageText').value = '';
+  document.getElementById('messageModal').classList.add('show');
+}
+
+function closeMessageModal() {
+  document.getElementById('messageModal').classList.remove('show');
+}
+
+function openReplyModal(messageKey, studentName, messageText) {
+  if (!isAdminMode) {
+    alert('⚠️ Apenas o professor pode responder!');
+    return;
+  }
+  currentReplyToKey = messageKey;
+  document.getElementById('originalMessage').innerHTML = `
+    <strong>👤 ${studentName}</strong><br>
+    <div style="margin-top:6px">${messageText.replace(/\n/g, '<br>')}</div>
+  `;
+  document.getElementById('replyText').value = '';
+  document.getElementById('replyModal').classList.add('show');
+}
+
+function closeReplyModal() {
+  document.getElementById('replyModal').classList.remove('show');
+  currentReplyToKey = null;
+}
+
+document.getElementById('messageForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const studentName = document.getElementById('studentNameMsg').value.trim();
+  const messageText = document.getElementById('messageText').value.trim();
   
-  if (!firebaseInitialized) {
-    list.innerHTML = '';
+  if (!studentName || !messageText) {
+    alert('Preenche todos os campos!');
     return;
   }
   
   showLoading();
-  const collections = ['downloads', 'videos', 'avaliacao', 'tpc', 'materia', 'avisos'];
-  const found = [];
-  let remaining = collections.length;
-  
-  collections.forEach(col => {
-    db.ref(col).once('value').then(snap => {
-      const data = snap.val();
-      if (data) {
-        Object.keys(data).forEach(k => {
-          const it = data[k];
-          if (it && it.storagePath) {
-            found.push({
-              col,
-              key: k,
-              title: it.title || '',
-              storagePath: it.storagePath,
-              fileName: it.fileName || ''
-            });
-          }
-        });
-      }
-    }).catch(() => {}).finally(() => {
-      remaining--;
-      if (remaining === 0) {
-        hideLoading();
-        if (!found.length) {
-          list.innerHTML = '<div class="card small">Nenhum ficheiro encontrado.</div>';
-        } else {
-          found.forEach(f => {
-            const d = document.createElement('div');
-            d.className = 'card';
-            d.innerHTML = `
-              <h3>${f.title || '(sem título)'}</h3>
-              <div class="small">📁 ${f.col}</div>
-              <div class="meta" style="font-size:0.75rem">${f.storagePath}</div>
-              <div style="margin-top:8px">
-                <button class="btn red" onclick="directDelete('${f.col}','${f.key}','${f.storagePath.replace(/'/g, "\\'")}')">🗑️ Apagar tudo</button>
-              </div>
-            `;
-            list.appendChild(d);
-          });
-        }
-      }
-    });
+  const ref = db.ref('mensagens').push();
+  ref.set({
+    studentName,
+    messageText,
+    timestamp: Date.now(),
+    replies: null
+  }).then(() => {
+    hideLoading();
+    closeMessageModal();
+    renderMessages();
+    alert('✅ Mensagem enviada!');
+  }).catch(e => {
+    hideLoading();
+    alert('Erro: ' + e.message);
   });
-}
+});
 
-function directDelete(col, key, storagePath) {
-  if (!confirm('Apagar ficheiro do Storage e a entrada?')) return;
+document.getElementById('replyForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const replyText = document.getElementById('replyText').value.trim();
+  
+  if (!replyText) {
+    alert('Escreve uma resposta!');
+    return;
+  }
   
   showLoading();
-  storage.ref(storagePath).delete().then(() => {
-    db.ref(`${col}/${key}`).update({
-      fileUrl: null,
-      storagePath: null,
-      fileName: null
-    }).then(() => {
-      hideLoading();
-      refreshFiles();
-      renderList(col);
-      alert('✅ Apagado');
+  const replyRef = db.ref(`mensagens/${currentReplyToKey}/replies`).push();
+  replyRef.set({
+    replyText,
+    timestamp: Date.now()
+  }).then(() => {
+    hideLoading();
+    closeReplyModal();
+    renderMessages();
+    alert('✅ Resposta enviada!');
+  }).catch(e => {
+    hideLoading();
+    alert('Erro: ' + e.message);
+  });
+});
+
+function renderMessages() {
+  const el = document.getElementById('mensagensList');
+  if (!el) return;
+  
+  if (!firebaseInitialized) {
+    el.innerHTML = '';
+    return;
+  }
+  
+  showLoading();
+  db.ref('mensagens').once('value').then(snapshot => {
+    hideLoading();
+    el.innerHTML = '';
+    const data = snapshot.val();
+    
+    if (!data) {
+      el.innerHTML = '<div class="card small">Ainda não há mensagens.</div>';
+      return;
+    }
+    
+    // Ordenar por timestamp (mais recente primeiro)
+    const messages = Object.keys(data).map(key => ({
+      key,
+      ...data[key]
+    })).sort((a, b) => b.timestamp - a.timestamp);
+    
+    messages.forEach(msg => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.style.borderLeft = '5px solid #4169e1';
+      
+      let ctrl = '';
+      if (isAdminMode) {
+        ctrl = `<div class="controls">
+          <button class="btn red" onclick="deleteMessage('${msg.key}')">🗑️</button>
+        </div>`;
+      }
+      
+      const timeAgo = getTimeAgo(msg.timestamp);
+      
+      let html = `${ctrl}
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+          <strong>👤 ${msg.studentName}</strong>
+          <span class="meta">${timeAgo}</span>
+        </div>
+        <div class="small">${msg.messageText.replace(/\n/g, '<br>')}</div>`;
+      
+      // Mostrar respostas
+      if (msg.replies) {
+        const replies = Object.keys(msg.replies).map(rKey => ({
+          key: rKey,
+          ...msg.replies[rKey]
+        })).sort((a, b) => a.timestamp - b.timestamp);
+        
+        replies.forEach(reply => {
+          const replyTimeAgo = getTimeAgo(reply.timestamp);
+          html += `
+            <div style="margin-left:20px;margin-top:12px;padding-left:12px;border-left:3px solid #28a745">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                <strong>👨‍🏫 Prof. Rui</strong>
+                <span class="meta">${replyTimeAgo}</span>
+              </div>
+              <div class="small" style="color:#28a745">${reply.replyText.replace(/\n/g, '<br>')}</div>
+            </div>`;
+        });
+      }
+      
+      // Botão de responder (só professor)
+      if (isAdminMode) {
+        html += `<div style="margin-top:12px">
+          <button class="btn" onclick="openReplyModal('${msg.key}','${msg.studentName.replace(/'/g, "\\'")}','${msg.messageText.replace(/'/g, "\\'").replace(/\n/g, '\\n')}')">↪️ Responder</button>
+        </div>`;
+      }
+      
+      div.innerHTML = html;
+      el.appendChild(div);
     });
   }).catch(err => {
     hideLoading();
-    alert('Erro: ' + err.message);
+    el.innerHTML = '<div class="card small">Erro ao carregar mensagens</div>';
+    console.error(err);
   });
+}
+
+function deleteMessage(key) {
+  if (!isAdminMode) {
+    alert('⚠️ Apenas o professor pode apagar mensagens!');
+    return;
+  }
+  
+  if (!confirm('Apagar esta mensagem e todas as respostas?')) return;
+  
+  showLoading();
+  db.ref(`mensagens/${key}`).remove().then(() => {
+    hideLoading();
+    renderMessages();
+    alert('✅ Mensagem apagada');
+  }).catch(e => {
+    hideLoading();
+    alert('Erro: ' + e.message);
+  });
+}
+
+function getTimeAgo(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  
+  if (minutes < 1) return 'Agora mesmo';
+  if (minutes < 60) return `Há ${minutes} min`;
+  if (hours < 24) return `Há ${hours}h`;
+  if (days === 1) return 'Ontem';
+  return `Há ${days} dias`;
 }
 
 /* ===================== Init ===================== */
@@ -871,10 +1108,15 @@ window.addEventListener('DOMContentLoaded', function() {
     return;
   }
   
-  ['tpc','materia','downloads','videos','avisos','avaliacao'].forEach(t => {
+  // Carregar todas as listas
+  ['tpc','portugues','matematica','estudomeio','documentos','videos','avisos','avaliacao','recursos'].forEach(t => {
     renderList(t);
     db.ref(t).on('value', () => renderList(t));
   });
+  
+  // Carregar mensagens
+  renderMessages();
+  db.ref('mensagens').on('value', () => renderMessages());
 });
 
 document.getElementById('passwordInput').addEventListener('keypress', function(e) {
