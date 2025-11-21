@@ -1,533 +1,66 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sala do Professor Rui</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sala do Professor Rui — (com upload de vídeos/imagens e delete seguro)</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            position: relative;
-        }
-
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-
-        header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .admin-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.2);
-            border: 2px solid white;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .admin-toggle:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        .admin-mode {
-            background: #28a745 !important;
-        }
-
-        nav {
-            background: #f8f9fa;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            border-bottom: 3px solid #667eea;
-        }
-
-        nav button {
-            background: none;
-            border: none;
-            padding: 20px 30px;
-            font-size: 1.1em;
-            cursor: pointer;
-            color: #333;
-            transition: all 0.3s;
-            border-bottom: 3px solid transparent;
-            font-weight: 600;
-        }
-
-        nav button:hover {
-            background: #e9ecef;
-            color: #667eea;
-        }
-
-        nav button.active {
-            background: white;
-            color: #667eea;
-            border-bottom: 3px solid #667eea;
-        }
-
-        .content {
-            padding: 40px;
-        }
-
-        .section {
-            display: none;
-        }
-
-        .section.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        h2 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 2em;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 10px;
-        }
-
-        .tpc-item, .materia-item, .download-item, .video-item {
-            background: #f8f9fa;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-radius: 10px;
-            border-left: 5px solid #667eea;
-            transition: transform 0.2s;
-            position: relative;
-        }
-
-        .tpc-item:hover, .materia-item:hover, .download-item:hover, .video-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .tpc-item h3, .materia-item h3, .download-item h3, .video-item h3 {
-            color: #764ba2;
-            margin-bottom: 10px;
-        }
-
-        .date {
-            color: #666;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-
-        .download-btn, .video-link {
-            display: inline-block;
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 10px;
-            transition: background 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-
-        .download-btn:hover, .video-link:hover {
-            background: #764ba2;
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .loading-overlay.show {
-            display: flex;
-        }
-
-        .loading-spinner {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .admin-controls {
-            display: none;
-            margin-bottom: 20px;
-        }
-
-        .admin-controls.show {
-            display: block;
-        }
-
-        .add-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            transition: background 0.3s;
-        }
-
-        .add-btn:hover {
-            background: #218838;
-        }
-
-        .item-controls {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            display: none;
-        }
-
-        .admin-controls.show ~ div .item-controls {
-            display: block;
-        }
-
-        .edit-btn, .delete-btn {
-            background: #ffc107;
-            color: #333;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 5px;
-            font-size: 0.9em;
-        }
-
-        .delete-btn {
-            background: #dc3545;
-            color: white;
-        }
-
-        .edit-btn:hover {
-            background: #e0a800;
-        }
-
-        .delete-btn:hover {
-            background: #c82333;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            animation: fadeIn 0.3s;
-        }
-
-        .modal.show {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-        }
-
-        .modal-content h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .form-group input, .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1em;
-            font-family: inherit;
-        }
-
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .file-upload {
-            border: 2px dashed #667eea;
-            padding: 20px;
-            text-align: center;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .file-upload:hover {
-            background: #f8f9fa;
-        }
-
-        .file-upload input {
-            display: none;
-        }
-
-        .upload-progress {
-            margin-top: 10px;
-            display: none;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: #28a745;
-            transition: width 0.3s;
-        }
-
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .btn-save, .btn-cancel {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-        }
-
-        .btn-save {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-save:hover {
-            background: #218838;
-        }
-
-        .btn-save:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-
-        .btn-cancel {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-cancel:hover {
-            background: #5a6268;
-        }
-
-        .login-modal {
-            display: none;
-            position: fixed;
-            z-index: 2000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.7);
-        }
-
-        .login-modal.show {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .login-content {
-            background: white;
-            padding: 40px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 400px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            text-align: center;
-        }
-
-        .login-content h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-        }
-
-        .password-input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #667eea;
-            border-radius: 10px;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 15px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-        }
-
-        .login-btn:hover {
-            background: #764ba2;
-        }
-
-        .error-message {
-            color: #dc3545;
-            margin-top: 10px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-
-        .empty-state .emoji {
-            font-size: 3em;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8em;
-            }
-
-            .admin-toggle {
-                position: static;
-                margin-top: 10px;
-                display: block;
-                width: 150px;
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            nav button {
-                padding: 15px 20px;
-                font-size: 1em;
-            }
-
-            .content {
-                padding: 20px;
-            }
-        }
+        /* Estilos simplificados e responsivos */
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); min-height:100vh; padding:20px; }
+        .container { max-width:1200px; margin:0 auto; background:white; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.3); overflow:hidden; }
+        header { background: linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; padding:30px; text-align:center; position:relative; }
+        header h1 { font-size:2.2em; margin-bottom:6px; }
+        nav { background:#f8f9fa; display:flex; justify-content:center; flex-wrap:wrap; border-bottom:3px solid #667eea; }
+        nav button { background:none; border:none; padding:14px 20px; font-size:1.05em; cursor:pointer; color:#333; border-bottom:3px solid transparent; font-weight:600; }
+        nav button.active { background:white; color:#667eea; border-bottom:3px solid #667eea; }
+        .content { padding:30px; }
+        .section { display:none; }
+        .section.active { display:block; animation:fadeIn .35s; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        h2 { color:#667eea; margin-bottom:16px; font-size:1.6em; border-bottom:3px solid #667eea; padding-bottom:8px; }
+        .item { background:#f8f9fa; padding:14px; margin-bottom:12px; border-radius:10px; border-left:5px solid #667eea; position:relative; }
+        .item h3 { color:#764ba2; margin-bottom:6px; }
+        .date { color:#666; font-size:.9em; font-weight:bold; }
+        .download-btn, .video-link, .small-btn { display:inline-block; background:#667eea; color:white; padding:8px 12px; text-decoration:none; border-radius:6px; margin-top:8px; border:none; cursor:pointer; }
+        .admin-controls { display:none; margin-bottom:16px; }
+        .admin-controls.show { display:block; }
+        .add-btn { background:#28a745; color:white; padding:10px 18px; border-radius:10px; border:none; cursor:pointer; }
+        .item-controls { position:absolute; top:10px; right:10px; display:none; }
+        .admin-controls.show ~ div .item-controls { display:block; }
+        .edit-btn { background:#ffc107; color:#333; padding:6px 8px; border-radius:6px; border:none; cursor:pointer; margin-left:6px; }
+        .delete-btn { background:#dc3545; color:white; padding:6px 8px; border-radius:6px; border:none; cursor:pointer; margin-left:6px; }
+        .modal { display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+        .modal.show { display:flex; }
+        .modal-content { background:white; padding:22px; border-radius:12px; width:90%; max-width:700px; max-height:90vh; overflow-y:auto; box-shadow:0 10px 40px rgba(0,0,0,0.25); }
+        .form-group { margin-bottom:14px; }
+        .form-group label { display:block; margin-bottom:6px; font-weight:bold; }
+        .form-group input, .form-group textarea { width:100%; padding:10px; border:2px solid #ddd; border-radius:6px; font-size:1em; }
+        .file-upload { border:2px dashed #667eea; padding:12px; text-align:center; border-radius:6px; cursor:pointer; }
+        .upload-progress { display:none; margin-top:8px; }
+        .progress-bar { width:100%; height:14px; background:#e9ecef; border-radius:8px; overflow:hidden; }
+        .progress-fill { height:100%; background:#28a745; width:0%; transition:width .3s; }
+        .modal-buttons { display:flex; gap:8px; justify-content:flex-end; margin-top:8px; }
+        .btn-save { background:#28a745; color:white; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; }
+        .btn-cancel { background:#6c757d; color:white; padding:10px 16px; border-radius:8px; border:none; cursor:pointer; }
+        .loading-overlay { position:fixed; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index:9999; }
+        .loading-overlay.show { display:flex; }
+        .loading-spinner { background:white; padding:20px; border-radius:10px; text-align:center; }
+        @media (max-width:768px) { header h1{font-size:1.4em;} .content{padding:16px;} }
+        .preview-media { margin-top:8px; max-width:100%; border-radius:8px; box-shadow:0 6px 14px rgba(0,0,0,0.08); }
     </style>
 </head>
 <body>
-    <!-- Loading Overlay -->
+    <!-- Loading overlay -->
     <div id="loadingOverlay" class="loading-overlay">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <p>A carregar...</p>
-        </div>
-    </div>
-
-    <!-- Login Modal -->
-    <div id="loginModal" class="login-modal">
-        <div class="login-content">
-            <h3>🔐 Modo Professor</h3>
-            <p>Introduz a password para aceder ao painel de administração:</p>
-            <input type="password" id="passwordInput" class="password-input" placeholder="Password">
-            <button onclick="checkPassword()" class="login-btn">Entrar</button>
-            <p id="errorMessage" class="error-message"></p>
-            <!-- Nota: parágrafo com a password padrão removido -->
-        </div>
+        <div class="loading-spinner"><div style="border:5px solid #f3f3f3;border-top:5px solid #667eea;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 12px;"></div><p>A carregar...</p></div>
     </div>
 
     <div class="container">
         <header>
             <h1>🎓 Sala do Professor Rui</h1>
-            <p>Bem-vindos ao portal educativo da nossa turma!</p>
-            <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">
-                👨‍🏫 Modo Professor
-            </button>
+            <p>Portal — TPC, Materiais, Downloads, Vídeos, Avisos e Avaliação</p>
+            <button class="admin-toggle" id="adminToggle" onclick="toggleAdmin()">👨‍🏫 Modo Professor</button>
         </header>
 
         <nav>
@@ -535,86 +68,101 @@
             <button onclick="showSection('materia')" class="nav-btn">📖 Matéria</button>
             <button onclick="showSection('downloads')" class="nav-btn">📥 Downloads</button>
             <button onclick="showSection('videos')" class="nav-btn">🎬 Vídeos</button>
-            <!-- Botão do chat removido -->
+            <button onclick="showSection('avisos')" class="nav-btn">📣 Avisos</button>
+            <button onclick="showSection('avaliacao')" class="nav-btn">📝 Avaliação</button>
         </nav>
 
         <div class="content">
-            <!-- TPC Section -->
             <div id="tpc" class="section active">
                 <h2>📚 Trabalhos de Casa</h2>
-                <div class="admin-controls" id="tpcAdmin">
-                    <button class="add-btn" onclick="openAddModal('tpc')">➕ Adicionar TPC</button>
-                </div>
+                <div class="admin-controls" id="tpcAdmin"><button class="add-btn" onclick="openAddModal('tpc')">➕ Adicionar TPC</button></div>
                 <div id="tpcList"></div>
             </div>
 
-            <!-- Matéria Section -->
             <div id="materia" class="section">
                 <h2>📖 Matéria Atual</h2>
-                <div class="admin-controls" id="materiaAdmin">
-                    <button class="add-btn" onclick="openAddModal('materia')">➕ Adicionar Matéria</button>
-                </div>
+                <div class="admin-controls" id="materiaAdmin"><button class="add-btn" onclick="openAddModal('materia')">➕ Adicionar Matéria</button></div>
                 <div id="materiaList"></div>
             </div>
 
-            <!-- Downloads Section -->
             <div id="downloads" class="section">
                 <h2>📥 Downloads</h2>
-                <div class="admin-controls" id="downloadsAdmin">
-                    <button class="add-btn" onclick="openAddModal('downloads')">➕ Adicionar Download</button>
-                </div>
+                <div class="admin-controls" id="downloadsAdmin"><button class="add-btn" onclick="openAddModal('downloads')">➕ Adicionar Download</button></div>
                 <div id="downloadsList"></div>
             </div>
 
-            <!-- Videos Section -->
             <div id="videos" class="section">
-                <h2>🎬 Vídeos Educativos</h2>
-                <div class="admin-controls" id="videosAdmin">
-                    <button class="add-btn" onclick="openAddModal('videos')">➕ Adicionar Vídeo</button>
-                </div>
+                <h2>🎬 Vídeos</h2>
+                <div class="admin-controls" id="videosAdmin"><button class="add-btn" onclick="openAddModal('videos')">➕ Adicionar Vídeo</button></div>
                 <div id="videosList"></div>
             </div>
 
-            <!-- Chat section removed as requested -->
+            <div id="avisos" class="section">
+                <h2>📣 Avisos</h2>
+                <div class="admin-controls" id="avisosAdmin"><button class="add-btn" onclick="openAddModal('avisos')">➕ Publicar Aviso</button></div>
+                <div id="avisosList"></div>
+            </div>
+
+            <div id="avaliacao" class="section">
+                <h2>📝 Avaliação</h2>
+                <div class="admin-controls" id="avaliacaoAdmin"><button class="add-btn" onclick="openAddModal('avaliacao')">➕ Adicionar Avaliação</button></div>
+                <div id="avaliacaoList"></div>
+            </div>
         </div>
     </div>
 
-    <!-- Edit Modal -->
+    <!-- Modal: adicionar / editar -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h3 id="modalTitle">Adicionar Item</h3>
             <form id="editForm">
                 <div class="form-group">
                     <label for="itemTitle">Título:</label>
-                    <input type="text" id="itemTitle" required>
+                    <input type="text" id="itemTitle" required />
                 </div>
+
                 <div class="form-group" id="dateGroup" style="display:none;">
                     <label for="itemDate">Data:</label>
-                    <input type="text" id="itemDate" placeholder="Ex: Para dia 25 de novembro">
+                    <input type="text" id="itemDate" placeholder="Ex: Para dia 25 de novembro" />
                 </div>
+
                 <div class="form-group">
                     <label for="itemDescription">Descrição:</label>
                     <textarea id="itemDescription" required></textarea>
                 </div>
+
                 <div class="form-group" id="urlGroup" style="display:none;">
-                    <label for="itemUrl">URL do Vídeo:</label>
-                    <input type="url" id="itemUrl" placeholder="https://...">
+                    <label for="itemUrl">URL do Vídeo (opcional):</label>
+                    <input type="url" id="itemUrl" placeholder="https://..." />
                 </div>
+
                 <div class="form-group" id="fileGroup" style="display:none;">
-                    <label>Ficheiro:</label>
+                    <label>Ficheiro (PDF/Imagem/Vídeo):</label>
                     <div class="file-upload" onclick="document.getElementById('fileInput').click()">
-                        <p>📁 Clica para fazer upload do ficheiro</p>
-                        <p style="font-size: 0.9em; color: #666;">PDF, DOC, DOCX, etc.</p>
-                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
+                        <p>📁 Clica para escolher um ficheiro</p>
+                        <p style="font-size:.9em;color:#666;">PDF, DOC, IMAGEM (jpg/png), VÍDEO (mp4, webm). Limite 20MB por omissão.</p>
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,image/*,video/*" />
                     </div>
-                    <p id="fileName" style="margin-top: 10px; color: #667eea;"></p>
+                    <p id="fileName" style="margin-top:8px;color:#667eea;"></p>
+                    <!-- Pré-visualização (imagem ou vídeo) -->
+                    <div id="previewContainer" style="margin-top:8px;"></div>
+
                     <div class="upload-progress" id="uploadProgress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" id="progressFill"></div>
-                        </div>
-                        <p id="progressText" style="margin-top: 5px; text-align: center;"></p>
+                        <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+                        <p id="progressText" style="text-align:center;margin-top:6px;"></p>
                     </div>
                 </div>
+
+                <div class="form-group" id="studentGroup" style="display:none;">
+                    <label for="studentName">Aluno(a):</label>
+                    <input type="text" id="studentName" placeholder="Nome do aluno" />
+                </div>
+
+                <div class="form-group" id="gradeGroup" style="display:none;">
+                    <label for="studentGrade">Nota / Avaliação:</label>
+                    <input type="text" id="studentGrade" placeholder="Ex: 16/20 ou A" />
+                </div>
+
                 <div class="modal-buttons">
                     <button type="button" class="btn-cancel" onclick="closeModal()">Cancelar</button>
                     <button type="submit" class="btn-save" id="saveBtn">Guardar</button>
@@ -623,15 +171,24 @@
         </div>
     </div>
 
-    <!-- Firebase -->
+    <!-- Login modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="max-width:420px;text-align:center;">
+            <h3>🔐 Modo Professor</h3>
+            <p>Introduz a password para aceder ao painel de administração:</p>
+            <input type="password" id="passwordInput" placeholder="Password" style="width:100%;padding:12px;border:2px solid #667eea;border-radius:8px;margin-top:12px;" />
+            <button onclick="checkPassword()" style="margin-top:12px;padding:10px 14px;background:#667eea;color:white;border:none;border-radius:8px;cursor:pointer;">Entrar</button>
+            <p id="errorMessage" style="color:#dc3545;margin-top:10px;"></p>
+        </div>
+    </div>
+
+    <!-- Firebase libs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <script>
-        // ========================================
-        // FIREBASE CONFIG
-        // ========================================
+        /* ===================== FIREBASE CONFIG (mantive a tua config) ===================== */
         const firebaseConfig = {
             apiKey: "AIzaSyBg5GJhEOGbtp5mvmLj2pBSM_dAiSpO0j8",
             authDomain: "ludus-virtualis.firebaseapp.com",
@@ -653,57 +210,47 @@
             storage = firebase.storage();
             firebaseInitialized = true;
             console.log("✅ Firebase inicializado");
-        } catch (error) {
-            console.error("❌ Erro Firebase:", error);
+        } catch (err) {
+            console.error("Erro Firebase:", err);
         }
 
-        // ========================================
-        // Código de gestão (sem chat/Gemini)
-        // ========================================
-        const DEFAULT_PASSWORD = 'professor123';
+        /* ===================== VARS GLOBAIS ===================== */
+        const DEFAULT_PASSWORD = 'professor123'; // altera depois para maior segurança
         let isAdminMode = false;
         let currentEditType = '';
         let currentEditKey = null;
         let uploadedFileURL = null;
+        let uploadedFilePath = null;
 
-        function showLoading() {
-            document.getElementById('loadingOverlay').classList.add('show');
-        }
+        /* ===================== UTILITÁRIOS UI ===================== */
+        function showLoading(){ document.getElementById('loadingOverlay').classList.add('show'); }
+        function hideLoading(){ document.getElementById('loadingOverlay').classList.remove('show'); }
 
-        function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('show');
-        }
-
-        function showSection(sectionId) {
+        function showSection(id){
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-
-            const section = document.getElementById(sectionId);
-            if (section) section.classList.add('active');
-
-            const btn = Array.from(document.querySelectorAll('.nav-btn'))
-                .find(b => b.getAttribute('onclick') === `showSection('${sectionId}')`);
+            const el = document.getElementById(id);
+            if (el) el.classList.add('active');
+            const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick') === `showSection('${id}')`);
             if (btn) btn.classList.add('active');
         }
 
-        function toggleAdmin() {
+        function toggleAdmin(){
             if (!isAdminMode) {
                 document.getElementById('loginModal').classList.add('show');
             } else {
                 isAdminMode = false;
                 document.getElementById('adminToggle').textContent = '👨‍🏫 Modo Professor';
-                document.getElementById('adminToggle').classList.remove('admin-mode');
                 document.querySelectorAll('.admin-controls').forEach(el => el.classList.remove('show'));
             }
         }
 
-        function checkPassword() {
+        function checkPassword(){
             const input = document.getElementById('passwordInput').value;
             if (input === DEFAULT_PASSWORD) {
                 isAdminMode = true;
                 document.getElementById('loginModal').classList.remove('show');
                 document.getElementById('adminToggle').textContent = '✅ Modo Edição';
-                document.getElementById('adminToggle').classList.add('admin-mode');
                 document.querySelectorAll('.admin-controls').forEach(el => el.classList.add('show'));
                 document.getElementById('passwordInput').value = '';
                 document.getElementById('errorMessage').textContent = '';
@@ -712,58 +259,69 @@
             }
         }
 
+        /* ===================== RENDERIZA LISTAS ===================== */
         function renderList(type) {
-            const listElement = document.getElementById(`${type}List`);
-            if (!listElement) return;
-
-            if (!firebaseInitialized) {
-                listElement.innerHTML = '<div class="empty-state"><div class="emoji">⚙️</div><p>Firebase não configurado</p></div>';
-                return;
-            }
-
+            const listEl = document.getElementById(`${type}List`);
+            if (!listEl) return;
+            if (!firebaseInitialized) { listEl.innerHTML = '<div style="padding:20px;color:#666;">Firebase não configurado</div>'; return; }
             showLoading();
-            db.ref(type).once('value').then((snapshot) => {
+            db.ref(type).once('value').then(snapshot => {
                 hideLoading();
                 const data = snapshot.val();
-                listElement.innerHTML = '';
-
-                if (!data || Object.keys(data).length === 0) {
-                    listElement.innerHTML = '<div class="empty-state"><div class="emoji">📭</div><p>Ainda não há itens.</p></div>';
-                    return;
-                }
-
+                listEl.innerHTML = '';
+                if (!data) { listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#666;">Ainda não há itens.</div>'; return; }
                 Object.keys(data).forEach(key => {
                     const item = data[key];
-                    const div = document.createElement('div');
-                    div.className = `${type}-item`;
-                    
-                    let html = `
-                        <div class="item-controls">
-                            <button class="edit-btn" onclick="editItem('${type}', '${key}')">✏️</button>
-                            <button class="delete-btn" onclick="deleteItem('${type}', '${key}')">🗑️</button>
-                        </div>
-                        <h3>${item.title}</h3>
-                    `;
-
+                    const div = document.createElement('div'); div.className = 'item';
+                    let controls = '';
+                    if (isAdminMode) {
+                        controls = `<div class="item-controls">
+                            <button class="edit-btn" onclick="editItem('${type}','${key}')">✏️</button>
+                            <button class="delete-btn" onclick="deleteItem('${type}','${key}')">🗑️</button>
+                        </div>`;
+                    }
+                    let html = `${controls}<h3>${item.title || ''}</h3>`;
                     if (item.date) html += `<p class="date">📅 ${item.date}</p>`;
-                    html += `<p>${item.description}</p>`;
-                    if (item.fileUrl) html += `<a href="${item.fileUrl}" class="download-btn" download target="_blank">📄 Descarregar</a>`;
-                    if (item.url && type === 'videos') html += `<a href="${item.url}" target="_blank" class="video-link">▶️ Ver</a>`;
+                    if (item.studentName) html += `<p><strong>Aluno:</strong> ${item.studentName}</p>`;
+                    if (item.grade) html += `<p><strong>Nota:</strong> ${item.grade}</p>`;
+                    if (item.description) html += `<p>${item.description}</p>`;
+
+                    // Mostrar ficheiro (imagem, vídeo, pdf)
+                    if (item.fileUrl) {
+                        const name = item.fileName || item.fileUrl || '';
+                        const isImage = /\.(jpe?g|png|gif|webp|bmp)$/i.test(name);
+                        const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(name) || (item.fileUrl && item.fileUrl.includes('video'));
+                        if (isImage) {
+                            html += `<p><a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" alt="${item.title || ''}" style="max-width:280px;border-radius:8px;display:block;margin-bottom:8px;" /></a></p>`;
+                            html += `<p><a href="${item.fileUrl}" target="_blank" class="download-btn">🔍 Abrir imagem</a></p>`;
+                        } else if (isVideo) {
+                            html += `<p><video controls class="preview-media" style="max-width:420px;display:block;margin-bottom:8px;"><source src="${item.fileUrl}"></video></p>`;
+                            html += `<p><a href="${item.fileUrl}" target="_blank" class="download-btn">▶ Abrir vídeo</a></p>`;
+                        } else {
+                            html += `<p><a href="${item.fileUrl}" target="_blank" class="download-btn">📄 Descarregar</a></p>`;
+                        }
+                    }
+
+                    // Se for vídeo via URL (p.ex. YouTube) e não tem fileUrl
+                    if (item.url && !item.fileUrl) {
+                        html += `<p><a href="${item.url}" target="_blank" class="video-link">▶️ Ver (link)</a></p>`;
+                    }
 
                     div.innerHTML = html;
-                    listElement.appendChild(div);
+                    listEl.appendChild(div);
                 });
-            }).catch(() => {
+            }).catch(err => {
                 hideLoading();
-                listElement.innerHTML = '<div class="empty-state"><div class="emoji">❌</div><p>Erro ao carregar</p></div>';
+                listEl.innerHTML = '<div style="text-align:center;padding:20px;color:#c00;">Erro ao carregar</div>';
             });
         }
 
+        /* ===================== ABRIR / FECHAR MODAL ===================== */
         function openAddModal(type) {
             currentEditType = type;
             currentEditKey = null;
             uploadedFileURL = null;
-
+            uploadedFilePath = null;
             document.getElementById('modalTitle').textContent = 'Adicionar';
             document.getElementById('itemTitle').value = '';
             document.getElementById('itemDate').value = '';
@@ -771,144 +329,250 @@
             document.getElementById('itemUrl').value = '';
             document.getElementById('fileInput').value = '';
             document.getElementById('fileName').textContent = '';
+            document.getElementById('previewContainer').innerHTML = '';
+            document.getElementById('studentName').value = '';
+            document.getElementById('studentGrade').value = '';
 
             document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
             document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
-            document.getElementById('fileGroup').style.display = type === 'downloads' ? 'block' : 'none';
+            document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'avaliacao' || type === 'videos') ? 'block' : 'none';
+            document.getElementById('studentGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+            document.getElementById('gradeGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+
             document.getElementById('editModal').classList.add('show');
-        }
-
-        function editItem(type, key) {
-            currentEditType = type;
-            currentEditKey = key;
-            
-            showLoading();
-            db.ref(`${type}/${key}`).once('value').then((snapshot) => {
-                hideLoading();
-                const item = snapshot.val();
-                
-                document.getElementById('itemTitle').value = item.title;
-                document.getElementById('itemDate').value = item.date || '';
-                document.getElementById('itemDescription').value = item.description;
-                document.getElementById('itemUrl').value = item.url || '';
-                uploadedFileURL = item.fileUrl || null;
-
-                document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
-                document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
-                document.getElementById('fileGroup').style.display = type === 'downloads' ? 'block' : 'none';
-                document.getElementById('editModal').classList.add('show');
-            });
-        }
-
-        function deleteItem(type, key) {
-            if (confirm('Apagar este item?')) {
-                showLoading();
-                db.ref(`${type}/${key}`).remove().then(() => {
-                    hideLoading();
-                    renderList(type);
-                });
-            }
         }
 
         function closeModal() {
             document.getElementById('editModal').classList.remove('show');
         }
 
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                document.getElementById('fileName').textContent = '📎 ' + file.name;
-                uploadFile(file);
-            }
-        });
+        /* ===================== EDIT ITEM ===================== */
+        function editItem(type, key) {
+            currentEditType = type;
+            currentEditKey = key;
+            showLoading();
+            db.ref(`${type}/${key}`).once('value').then(snapshot => {
+                hideLoading();
+                const item = snapshot.val() || {};
+                document.getElementById('itemTitle').value = item.title || '';
+                document.getElementById('itemDate').value = item.date || '';
+                document.getElementById('itemDescription').value = item.description || '';
+                document.getElementById('itemUrl').value = item.url || '';
+                document.getElementById('fileName').textContent = item.fileName || '';
+                document.getElementById('studentName').value = item.studentName || '';
+                document.getElementById('studentGrade').value = item.grade || '';
 
+                uploadedFileURL = item.fileUrl || null;
+                uploadedFilePath = item.storagePath || null;
+
+                // se existir ficheiro, mostra pré-visualização no modal
+                const preview = document.getElementById('previewContainer');
+                preview.innerHTML = '';
+                if (item.fileUrl) {
+                    const name = item.fileName || item.fileUrl;
+                    const isImage = /\.(jpe?g|png|gif|webp|bmp)$/i.test(name);
+                    const isVideo = /\.(mp4|webm|ogg|mov)$/i.test(name) || (item.fileUrl && item.fileUrl.includes('video'));
+                    if (isImage) {
+                        preview.innerHTML = `<a href="${item.fileUrl}" target="_blank"><img src="${item.fileUrl}" alt="preview" class="preview-media" style="max-width:320px;"></a>`;
+                    } else if (isVideo) {
+                        preview.innerHTML = `<video controls class="preview-media" style="max-width:420px;"><source src="${item.fileUrl}"></video>`;
+                    } else {
+                        preview.innerHTML = `<a href="${item.fileUrl}" target="_blank" class="download-btn">📄 Abrir ficheiro existente</a>`;
+                    }
+                }
+
+                document.getElementById('dateGroup').style.display = type === 'tpc' ? 'block' : 'none';
+                document.getElementById('urlGroup').style.display = type === 'videos' ? 'block' : 'none';
+                document.getElementById('fileGroup').style.display = (type === 'downloads' || type === 'avaliacao' || type === 'videos') ? 'block' : 'none';
+                document.getElementById('studentGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+                document.getElementById('gradeGroup').style.display = type === 'avaliacao' ? 'block' : 'none';
+
+                document.getElementById('editModal').classList.add('show');
+            }).catch(err => {
+                hideLoading();
+                alert('Erro ao carregar item: ' + (err.message || ''));
+            });
+        }
+
+        /* ===================== UPLOAD FILE (imagem / vídeo / pdf) ===================== */
         function uploadFile(file) {
             const saveBtn = document.getElementById('saveBtn');
             saveBtn.disabled = true;
-
+            // Ajusta limite se necessário
+            const maxSize = 20 * 1024 * 1024; // 20MB
+            if (file.size > maxSize) {
+                alert('Ficheiro demasiado grande. Limite: 20 MB.');
+                document.getElementById('fileInput').value = '';
+                document.getElementById('fileName').textContent = '';
+                document.getElementById('previewContainer').innerHTML = '';
+                saveBtn.disabled = false;
+                return;
+            }
             const timestamp = Date.now();
             const fileName = `${timestamp}_${file.name}`;
-            const storageRef = storage.ref('downloads/' + fileName);
+            const folder = (currentEditType === 'videos') ? 'videos' : 'downloads';
+            const storageRef = storage.ref(`${folder}/${fileName}`);
             const uploadTask = storageRef.put(file);
 
             const progressDiv = document.getElementById('uploadProgress');
             const progressFill = document.getElementById('progressFill');
             const progressText = document.getElementById('progressText');
-
             progressDiv.style.display = 'block';
 
-            uploadTask.on('state_changed',
-                (snapshot) => {
-                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                    progressFill.style.width = progress + '%';
-                    progressText.textContent = Math.round(progress) + '%';
-                },
-                (error) => {
-                    alert('Erro no upload!');
-                    progressDiv.style.display = 'none';
+            uploadTask.on('state_changed', snapshot => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = Math.round(progress) + '%';
+            }, error => {
+                alert('Erro no upload: ' + (error.message || ''));
+                progressDiv.style.display = 'none';
+                saveBtn.disabled = false;
+            }, () => {
+                uploadTask.snapshot.ref.getDownloadURL().then(url => {
+                    uploadedFileURL = url;
+                    uploadedFilePath = uploadTask.snapshot.ref.fullPath; // ex: "videos/1708_foo.mp4"
+                    progressText.textContent = '✅ Completo!';
                     saveBtn.disabled = false;
-                },
-                () => {
-                    uploadTask.snapshot.ref.getDownloadURL().then((url) => {
-                        uploadedFileURL = url;
-                        progressText.textContent = '✅ Completo!';
-                        saveBtn.disabled = false;
-                        setTimeout(() => progressDiv.style.display = 'none', 2000);
-                    });
-                }
-            );
+                    setTimeout(() => progressDiv.style.display = 'none', 1200);
+
+                    // mostrar preview do ficheiro já carregado
+                    const preview = document.getElementById('previewContainer');
+                    preview.innerHTML = '';
+                    if (file.type.startsWith('image/')) {
+                        preview.innerHTML = `<a href="${uploadedFileURL}" target="_blank"><img src="${uploadedFileURL}" class="preview-media" style="max-width:320px;"></a>`;
+                    } else if (file.type.startsWith('video/')) {
+                        preview.innerHTML = `<video controls class="preview-media" style="max-width:420px;"><source src="${uploadedFileURL}"></video>`;
+                    } else {
+                        preview.innerHTML = `<a href="${uploadedFileURL}" target="_blank" class="download-btn">📄 Abrir ficheiro</a>`;
+                    }
+                });
+            });
         }
 
+        /* Quando o utilizador escolhe ficheiro no input */
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('previewContainer');
+            preview.innerHTML = '';
+            if (!file) return;
+            document.getElementById('fileName').textContent = '📎 ' + file.name;
+
+            // mostrar preview local imediato (antes do upload)
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(ev) { preview.innerHTML = `<img src="${ev.target.result}" class="preview-media" style="max-width:320px;">`; };
+                reader.readAsDataURL(file);
+            } else if (file.type.startsWith('video/')) {
+                const reader = new FileReader();
+                reader.onload = function(ev) { preview.innerHTML = `<video controls class="preview-media" style="max-width:420px;"><source src="${ev.target.result}"></video>`; };
+                reader.readAsDataURL(file);
+            }
+
+            // iniciar upload
+            uploadFile(file);
+        });
+
+        /* ===================== SUBMETER FORM (guardar no Database) ===================== */
         document.getElementById('editForm').addEventListener('submit', function(e) {
             e.preventDefault();
-
-            const newItem = {
-                title: document.getElementById('itemTitle').value,
-                description: document.getElementById('itemDescription').value,
-                timestamp: Date.now()
-            };
+            const title = document.getElementById('itemTitle').value;
+            const description = document.getElementById('itemDescription').value;
+            const newItem = { title, description, timestamp: Date.now() };
 
             if (currentEditType === 'tpc') newItem.date = document.getElementById('itemDate').value;
-            if (currentEditType === 'videos') newItem.url = document.getElementById('itemUrl').value;
+            if (currentEditType === 'videos') {
+                const url = document.getElementById('itemUrl').value;
+                if (url) newItem.url = url;
+            }
+
             if (currentEditType === 'downloads') {
                 if (uploadedFileURL) {
                     newItem.fileUrl = uploadedFileURL;
                     newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'ficheiro';
+                    newItem.storagePath = uploadedFilePath || null;
                 } else if (!currentEditKey) {
                     alert('Faz upload de um ficheiro!');
                     return;
                 }
             }
 
+            if (currentEditType === 'videos') {
+                // Preferimos ficheiro enviado; se não houver ficheiro, permitimos URL (ex: YouTube)
+                if (uploadedFileURL) {
+                    newItem.fileUrl = uploadedFileURL;
+                    newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'video';
+                    newItem.storagePath = uploadedFilePath || null;
+                } else {
+                    // Se não tem ficheiro e não tem URL, pedimos algo
+                    if (!newItem.url && !uploadedFileURL && !currentEditKey) {
+                        alert('Carrega um vídeo ou coloca um link de vídeo!');
+                        return;
+                    }
+                }
+            }
+
+            if (currentEditType === 'avaliacao') {
+                newItem.studentName = document.getElementById('studentName').value || null;
+                newItem.grade = document.getElementById('studentGrade').value || null;
+                if (uploadedFileURL) {
+                    newItem.fileUrl = uploadedFileURL;
+                    newItem.fileName = document.getElementById('fileInput').files[0]?.name || 'ficheiro';
+                    newItem.storagePath = uploadedFilePath || null;
+                }
+            }
+
             showLoading();
             const ref = currentEditKey ? db.ref(`${currentEditType}/${currentEditKey}`) : db.ref(currentEditType).push();
-            
             ref.set(newItem).then(() => {
                 hideLoading();
                 renderList(currentEditType);
                 closeModal();
                 alert('✅ Guardado!');
+            }).catch(err => {
+                hideLoading();
+                alert('Erro ao guardar: ' + (err.message || ''));
             });
         });
 
-        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkPassword();
-        });
+        /* ===================== DELETAR ITEM (apaga ficheiro no Storage se existir) ===================== */
+        function deleteItem(type, key) {
+            if (!confirm('Apagar este item? Esta ação é irreversível.')) return;
+            showLoading();
+            db.ref(`${type}/${key}`).once('value').then(snapshot => {
+                const item = snapshot.val();
+                const storagePath = item && item.storagePath ? item.storagePath : null;
+                const removeDb = () => db.ref(`${type}/${key}`).remove();
+                if (storagePath) {
+                    storage.ref(storagePath).delete().then(() => {
+                        removeDb().then(() => { hideLoading(); renderList(type); alert('✅ Item e ficheiro apagados.'); });
+                    }).catch(error => {
+                        console.error('Erro ao apagar ficheiro:', error);
+                        if (confirm('Erro ao apagar o ficheiro no Storage. Queres remover só a entrada do site?')) {
+                            removeDb().then(() => { hideLoading(); renderList(type); alert('✅ Entrada removida (ficheiro não apagado).'); });
+                        } else hideLoading();
+                    });
+                } else {
+                    removeDb().then(() => { hideLoading(); renderList(type); alert('✅ Item apagado.'); });
+                }
+            }).catch(err => { hideLoading(); alert('Erro ao buscar item: ' + (err.message || '')); });
+        }
 
+        /* ===================== INICIALIZAÇÃO ===================== */
         window.addEventListener('DOMContentLoaded', function() {
             if (firebaseInitialized) {
-                renderList('tpc');
-                renderList('materia');
-                renderList('downloads');
-                renderList('videos');
-
+                renderList('tpc'); renderList('materia'); renderList('downloads'); renderList('videos'); renderList('avisos'); renderList('avaliacao');
                 db.ref('tpc').on('value', () => renderList('tpc'));
                 db.ref('materia').on('value', () => renderList('materia'));
                 db.ref('downloads').on('value', () => renderList('downloads'));
                 db.ref('videos').on('value', () => renderList('videos'));
+                db.ref('avisos').on('value', () => renderList('avisos'));
+                db.ref('avaliacao').on('value', () => renderList('avaliacao'));
             }
         });
+
+        document.getElementById('passwordInput').addEventListener('keypress', function(e){ if (e.key === 'Enter') checkPassword(); });
     </script>
 </body>
 </html>
+
 
