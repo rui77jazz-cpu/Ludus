@@ -903,7 +903,16 @@ function deleteItem(type, key) {
 let currentReplyToKey = null;
 
 function openMessageModal() {
-  document.getElementById('studentNameMsg').value = '';
+  // Se for professor, pré-preencher e desabilitar campo nome
+  if (isAdminMode) {
+    document.getElementById('studentNameMsg').value = 'Prof. Rui';
+    document.getElementById('studentNameMsg').disabled = true;
+    document.getElementById('studentNameMsg').style.background = '#e8f5e9';
+  } else {
+    document.getElementById('studentNameMsg').value = '';
+    document.getElementById('studentNameMsg').disabled = false;
+    document.getElementById('studentNameMsg').style.background = '';
+  }
   document.getElementById('messageText').value = '';
   document.getElementById('messageModal').classList.add('show');
 }
@@ -947,6 +956,7 @@ document.getElementById('messageForm').addEventListener('submit', function(e) {
     studentName,
     messageText,
     timestamp: Date.now(),
+    isTeacher: isAdminMode, // Marcar se é professor
     replies: null
   }).then(() => {
     hideLoading();
@@ -1013,7 +1023,10 @@ function renderMessages() {
     messages.forEach(msg => {
       const div = document.createElement('div');
       div.className = 'card';
-      div.style.borderLeft = '5px solid #4169e1';
+      
+      // Se for mensagem do professor, usar cor verde
+      const isTeacherMsg = msg.isTeacher || msg.studentName === 'Prof. Rui';
+      div.style.borderLeft = isTeacherMsg ? '5px solid #28a745' : '5px solid #4169e1';
       
       let ctrl = '';
       if (isAdminMode) {
@@ -1023,13 +1036,16 @@ function renderMessages() {
       }
       
       const timeAgo = getTimeAgo(msg.timestamp);
+      const icon = isTeacherMsg ? '👨‍🏫' : '👤';
+      const nameStyle = isTeacherMsg ? 'color:#28a745' : '';
+      const textColor = isTeacherMsg ? 'color:#28a745' : '';
       
       let html = `${ctrl}
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <strong>👤 ${msg.studentName}</strong>
+          <strong style="${nameStyle}">${icon} ${msg.studentName}</strong>
           <span class="meta">${timeAgo}</span>
         </div>
-        <div class="small">${msg.messageText.replace(/\n/g, '<br>')}</div>`;
+        <div class="small" style="${textColor}">${msg.messageText.replace(/\n/g, '<br>')}</div>`;
       
       // Mostrar respostas
       if (msg.replies) {
