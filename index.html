@@ -48,6 +48,22 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
 .progress-bar{width:100%;height:14px;background:#e9ecef;border-radius:8px;overflow:hidden}
 .progress-fill{height:100%;background:#28a745;width:0%;transition:width .3s}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* Estilos para sistema de mensagens */
+.message-card{background:#f8f9fa;padding:14px;border-radius:10px;margin-bottom:16px;position:relative}
+.message-card.teacher{border-left:5px solid #28a745}
+.message-card.student{border-left:5px solid #4169e1}
+.message-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.message-name{font-weight:700;font-size:1.05rem}
+.message-name.teacher{color:#28a745}
+.message-name.student{color:#4169e1}
+.message-body{color:#333;line-height:1.6;margin-bottom:10px}
+.replies-container{margin-top:12px;padding-left:20px;border-left:3px solid #ddd}
+.reply-item{background:#fff;padding:10px;border-radius:8px;margin-bottom:10px;border-left:3px solid #28a745}
+.reply-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.reply-body{color:#555;font-size:0.95rem;line-height:1.5}
+.unread-badge{background:#dc3545;color:#fff;padding:2px 8px;border-radius:12px;font-size:0.75rem;font-weight:700}
+.message-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 </style>
 </head>
 <body>
@@ -205,7 +221,7 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
 
 <!-- Modal: nova mensagem -->
 <div class="modal" id="messageModal"><div class="modal-inner" style="max-width:520px">
-  <h3>✉️ Enviar Mensagem ao Professor</h3>
+  <h3>✉️ Enviar Mensagem</h3>
   <form id="messageForm">
     <div class="form-row">
       <label>O teu nome</label>
@@ -223,10 +239,14 @@ input[type=text],input[type=url],textarea,input[type=password]{width:100%;paddin
 </div></div>
 
 <!-- Modal: responder mensagem -->
-<div class="modal" id="replyModal"><div class="modal-inner" style="max-width:520px">
+<div class="modal" id="replyModal"><div class="modal-inner" style="max-width:620px">
   <h3>↪️ Responder Mensagem</h3>
-  <div id="originalMessage" class="card" style="margin-bottom:12px;background:#f0f0f0"></div>
+  <div id="originalMessagePreview" style="background:#f0f0f0;padding:12px;border-radius:8px;margin-bottom:16px;border-left:4px solid #667eea"></div>
   <form id="replyForm">
+    <div class="form-row">
+      <label>O teu nome</label>
+      <input type="text" id="replyName" required placeholder="Nome do remetente" />
+    </div>
     <div class="form-row">
       <label>Resposta</label>
       <textarea id="replyText" rows="4" required placeholder="Escreve a tua resposta..."></textarea>
@@ -278,6 +298,7 @@ let currentEditKey = null;
 let uploadedFileURL = null;
 let uploadedFilePath = null;
 let uploadedFileName = null;
+let currentReplyToKey = null;
 
 /* ===================== UI util ===================== */
 function showLoading() {
@@ -313,7 +334,6 @@ function toggleAdmin() {
     document.querySelectorAll('.controls').forEach(el => el.classList.add('hidden'));
     document.querySelector('.admin-access').textContent = '🔑';
     document.querySelector('.admin-access').style.opacity = '0.3';
-    // Recarregar para esconder botões
     ['tpc','portugues','matematica','estudomeio','documentos','videos','avisos','avaliacao','recursos'].forEach(t => renderList(t));
     renderMessages();
   } else {
@@ -382,7 +402,6 @@ function renderList(type) {
       
       if (item.date) html += `<div class="small">📅 ${item.date}</div>`;
       if (item.description) {
-        // Preservar quebras de linha convertendo \n em <br>
         const descWithBreaks = item.description.replace(/\n/g, '<br>');
         html += `<div class="small">${descWithBreaks}</div>`;
       }
@@ -437,7 +456,6 @@ function renderList(type) {
 
 /* ===================== Open modal ===================== */
 function openAddModal(type) {
-  // PROTEÇÃO: Só professor pode adicionar
   if (!isAdminMode) {
     alert('⚠️ Apenas o professor pode adicionar conteúdo!');
     return;
@@ -449,7 +467,6 @@ function openAddModal(type) {
   uploadedFilePath = null;
   uploadedFileName = null;
   
-  // Títulos personalizados para cada tipo
   const titles = {
     'tpc': 'TPC',
     'portugues': 'Português',
@@ -471,7 +488,6 @@ function openAddModal(type) {
   document.getElementById('fileMeta').textContent = '';
   document.getElementById('preview').innerHTML = '';
   
-  // Configurar label e tipos de ficheiro baseado na secção
   const fileLabel = document.getElementById('fileLabel');
   const fileInput = document.getElementById('fileInput');
   
@@ -501,7 +517,6 @@ function openAddModal(type) {
 
 /* ===================== Edit item ===================== */
 function editItem(type, key) {
-  // PROTEÇÃO: Só professor pode editar
   if (!isAdminMode) {
     alert('⚠️ Apenas o professor pode editar conteúdo!');
     return;
@@ -515,7 +530,6 @@ function editItem(type, key) {
     hideLoading();
     const item = snap.val() || {};
     
-    // Títulos personalizados
     const titles = {
       'tpc': 'TPC',
       'portugues': 'Português',
@@ -583,7 +597,7 @@ function editItem(type, key) {
 
 /* ===================== Upload file ===================== */
 function uploadFile(file) {
-  const max = 40 * 1024 * 1024; // 40MB
+  const max = 40 * 1024 * 1024;
   const saveBtn = document.getElementById('saveBtn');
   saveBtn.disabled = true;
   
@@ -594,7 +608,6 @@ function uploadFile(file) {
     return;
   }
   
-  // Determinar pasta baseado no tipo
   let folder = 'geral';
   if (currentEditType === 'videos') folder = 'videos';
   else if (currentEditType === 'avaliacao') folder = 'avaliacoes';
@@ -745,7 +758,6 @@ function deleteOnlyFile() {
 }
 
 function deleteFileOnly(type, key) {
-  // PROTEÇÃO: Só professor pode apagar
   if (!isAdminMode) {
     alert('⚠️ Apenas o professor pode apagar ficheiros!');
     return;
@@ -804,7 +816,6 @@ document.getElementById('editForm').addEventListener('submit', function(e) {
   const title = document.getElementById('itemTitle').value.trim();
   const description = document.getElementById('itemDescription').value.trim();
   
-  // Validação: precisa de PELO MENOS título OU descrição OU ficheiro
   if (!title && !description && !uploadedFileURL) {
     alert('⚠️ Preenche pelo menos o título, a descrição ou carrega um ficheiro!');
     return;
@@ -855,7 +866,6 @@ document.getElementById('editForm').addEventListener('submit', function(e) {
 
 /* ===================== Delete item ===================== */
 function deleteItem(type, key) {
-  // PROTEÇÃO: Só professor pode apagar
   if (!isAdminMode) {
     alert('⚠️ Apenas o professor pode apagar conteúdo!');
     return;
@@ -899,11 +909,10 @@ function deleteItem(type, key) {
   });
 }
 
-/* ===================== Sistema de Mensagens ===================== */
-let currentReplyToKey = null;
+/* ===================== Sistema de Mensagens com Respostas ===================== */
 
 function openMessageModal() {
-  // Se for professor, pré-preencher e desabilitar campo nome
+  // Se for professor, pré-preencher
   if (isAdminMode) {
     document.getElementById('studentNameMsg').value = 'Prof. Rui';
     document.getElementById('studentNameMsg').disabled = true;
@@ -921,18 +930,43 @@ function closeMessageModal() {
   document.getElementById('messageModal').classList.remove('show');
 }
 
-function openReplyModal(messageKey, studentName, messageText) {
-  if (!isAdminMode) {
-    alert('⚠️ Apenas o professor pode responder!');
-    return;
-  }
+function openReplyModal(messageKey) {
   currentReplyToKey = messageKey;
-  document.getElementById('originalMessage').innerHTML = `
-    <strong>👤 ${studentName}</strong><br>
-    <div style="margin-top:6px">${messageText.replace(/\n/g, '<br>')}</div>
-  `;
-  document.getElementById('replyText').value = '';
-  document.getElementById('replyModal').classList.add('show');
+  
+  // Buscar mensagem original para mostrar preview
+  showLoading();
+  db.ref(`mensagens/${messageKey}`).once('value').then(snap => {
+    hideLoading();
+    const msg = snap.val();
+    if (!msg) return;
+    
+    const timeAgo = getTimeAgo(msg.timestamp);
+    const isTeacher = msg.isTeacher || msg.studentName === 'Prof. Rui';
+    const icon = isTeacher ? '👨‍🏫' : '👤';
+    
+    document.getElementById('originalMessagePreview').innerHTML = `
+      <strong>${icon} ${msg.studentName}</strong>
+      <span class="meta" style="margin-left:8px">${timeAgo}</span>
+      <div style="margin-top:8px;color:#555">${msg.messageText.replace(/\n/g, '<br>')}</div>
+    `;
+    
+    // Pré-preencher nome
+    if (isAdminMode) {
+      document.getElementById('replyName').value = 'Prof. Rui';
+      document.getElementById('replyName').disabled = true;
+      document.getElementById('replyName').style.background = '#e8f5e9';
+    } else {
+      document.getElementById('replyName').value = '';
+      document.getElementById('replyName').disabled = false;
+      document.getElementById('replyName').style.background = '';
+    }
+    
+    document.getElementById('replyText').value = '';
+    document.getElementById('replyModal').classList.add('show');
+  }).catch(e => {
+    hideLoading();
+    alert('Erro: ' + e.message);
+  });
 }
 
 function closeReplyModal() {
@@ -956,7 +990,7 @@ document.getElementById('messageForm').addEventListener('submit', function(e) {
     studentName,
     messageText,
     timestamp: Date.now(),
-    isTeacher: isAdminMode, // Marcar se é professor
+    isTeacher: isAdminMode,
     replies: null
   }).then(() => {
     hideLoading();
@@ -971,18 +1005,21 @@ document.getElementById('messageForm').addEventListener('submit', function(e) {
 
 document.getElementById('replyForm').addEventListener('submit', function(e) {
   e.preventDefault();
+  const replyName = document.getElementById('replyName').value.trim();
   const replyText = document.getElementById('replyText').value.trim();
   
-  if (!replyText) {
-    alert('Escreve uma resposta!');
+  if (!replyName || !replyText) {
+    alert('Preenche todos os campos!');
     return;
   }
   
   showLoading();
   const replyRef = db.ref(`mensagens/${currentReplyToKey}/replies`).push();
   replyRef.set({
+    replyName,
     replyText,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    isTeacher: isAdminMode
   }).then(() => {
     hideLoading();
     closeReplyModal();
@@ -1014,7 +1051,6 @@ function renderMessages() {
       return;
     }
     
-    // Ordenar por timestamp (mais recente primeiro)
     const messages = Object.keys(data).map(key => ({
       key,
       ...data[key]
@@ -1022,33 +1058,32 @@ function renderMessages() {
     
     messages.forEach(msg => {
       const div = document.createElement('div');
-      div.className = 'card';
-      
-      // Se for mensagem do professor, usar cor verde
       const isTeacherMsg = msg.isTeacher || msg.studentName === 'Prof. Rui';
-      div.style.borderLeft = isTeacherMsg ? '5px solid #28a745' : '5px solid #4169e1';
-      
-      let ctrl = '';
-      if (isAdminMode) {
-        ctrl = `<div class="controls">
-          <button class="btn red" onclick="deleteMessage('${msg.key}')">🗑️</button>
-        </div>`;
-      }
+      div.className = isTeacherMsg ? 'message-card teacher' : 'message-card student';
       
       const timeAgo = getTimeAgo(msg.timestamp);
       const icon = isTeacherMsg ? '👨‍🏫' : '👤';
-      const nameStyle = isTeacherMsg ? 'color:#28a745' : '';
-      const textColor = isTeacherMsg ? 'color:#28a745' : '';
+      const nameClass = isTeacherMsg ? 'teacher' : 'student';
       
-      let html = `${ctrl}
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          <strong style="${nameStyle}">${icon} ${msg.studentName}</strong>
+      // Contar respostas
+      let replyCount = 0;
+      if (msg.replies) {
+        replyCount = Object.keys(msg.replies).length;
+      }
+      
+      let html = `
+        <div class="message-header">
+          <span class="message-name ${nameClass}">${icon} ${msg.studentName}</span>
           <span class="meta">${timeAgo}</span>
+          ${replyCount > 0 ? `<span class="meta">💬 ${replyCount} ${replyCount === 1 ? 'resposta' : 'respostas'}</span>` : ''}
+          ${isAdminMode ? `<button class="btn red" style="margin-left:auto;padding:4px 8px;font-size:0.8rem" onclick="deleteMessage('${msg.key}')">🗑️</button>` : ''}
         </div>
-        <div class="small" style="${textColor}">${msg.messageText.replace(/\n/g, '<br>')}</div>`;
+        <div class="message-body">${msg.messageText.replace(/\n/g, '<br>')}</div>
+      `;
       
       // Mostrar respostas
       if (msg.replies) {
+        html += '<div class="replies-container">';
         const replies = Object.keys(msg.replies).map(rKey => ({
           key: rKey,
           ...msg.replies[rKey]
@@ -1056,23 +1091,28 @@ function renderMessages() {
         
         replies.forEach(reply => {
           const replyTimeAgo = getTimeAgo(reply.timestamp);
+          const isTeacherReply = reply.isTeacher || reply.replyName === 'Prof. Rui';
+          const replyIcon = isTeacherReply ? '👨‍🏫' : '👤';
+          
           html += `
-            <div style="margin-left:20px;margin-top:12px;padding-left:12px;border-left:3px solid #28a745">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-                <strong>👨‍🏫 Prof. Rui</strong>
+            <div class="reply-item" style="border-left-color:${isTeacherReply ? '#28a745' : '#4169e1'}">
+              <div class="reply-header">
+                <strong style="color:${isTeacherReply ? '#28a745' : '#4169e1'}">${replyIcon} ${reply.replyName}</strong>
                 <span class="meta">${replyTimeAgo}</span>
               </div>
-              <div class="small" style="color:#28a745">${reply.replyText.replace(/\n/g, '<br>')}</div>
-            </div>`;
+              <div class="reply-body">${reply.replyText.replace(/\n/g, '<br>')}</div>
+            </div>
+          `;
         });
+        html += '</div>';
       }
       
-      // Botão de responder (só professor)
-      if (isAdminMode) {
-        html += `<div style="margin-top:12px">
-          <button class="btn" onclick="openReplyModal('${msg.key}','${msg.studentName.replace(/'/g, "\\'")}','${msg.messageText.replace(/'/g, "\\'").replace(/\n/g, '\\n')}')">↪️ Responder</button>
-        </div>`;
-      }
+      // Botão de responder
+      html += `
+        <div class="message-actions">
+          <button class="btn" onclick="openReplyModal('${msg.key}')" style="font-size:0.85rem;padding:6px 10px">↪️ Responder</button>
+        </div>
+      `;
       
       div.innerHTML = html;
       el.appendChild(div);
@@ -1124,13 +1164,11 @@ window.addEventListener('DOMContentLoaded', function() {
     return;
   }
   
-  // Carregar todas as listas
   ['tpc','portugues','matematica','estudomeio','documentos','videos','avisos','avaliacao','recursos'].forEach(t => {
     renderList(t);
     db.ref(t).on('value', () => renderList(t));
   });
   
-  // Carregar mensagens
   renderMessages();
   db.ref('mensagens').on('value', () => renderMessages());
 });
@@ -1141,4 +1179,3 @@ document.getElementById('passwordInput').addEventListener('keypress', function(e
 </script>
 </body>
 </html>
-
